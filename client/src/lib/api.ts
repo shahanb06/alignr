@@ -12,7 +12,7 @@ import type {
   TailorResult,
 } from './types';
 
-const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) || '';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '';
 
 export async function extractResume(file: File): Promise<ExtractResumeResponse> {
   const fd = new FormData();
