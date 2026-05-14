@@ -1,33 +1,41 @@
 # Alignr
 
-A focused productivity tool that helps computer science students tailor resumes for technical internships — **without fabricating experience, employers, degrees, metrics, or skills.**
+An honest AI resume-tailoring tool. Paste a resume and a job description, and Alignr rewrites only what's already supported by the source resume — **without fabricating experience, employers, degrees, metrics, or skills.**
 
-Built as a portfolio project to demonstrate end-to-end product thinking: a careful system prompt, structured AI output, real file parsing, SSE streaming, and a calm productivity UI inspired by Linear, Vercel, Notion, and GitHub.
+**Live:** [alignrai.net](https://alignrai.net)
 
-> **Live demo — rate-limited, please be patient.** This is a single-key demo. If you hit the limit, clone the repo and run locally with your own Anthropic API key.
+> **Live demo — rate-limited, please be patient.** The hosted version runs on a single shared API key. If you hit the limit, clone the repo and run locally with your own Anthropic API key.
+
+<!--
+Add a screenshot to make this README land harder. Drop an image at docs/screenshot.png
+(a capture of the results view — match score, diff, recruiter warnings — works best),
+then uncomment the line below:
+
+![Alignr](docs/screenshot.png)
+-->
 
 ---
 
 ## The problem
 
-CS students applying to internships have two bad options:
+Tailoring a resume to a specific job is tedious, and the usual shortcuts are worse than doing it by hand:
 
-1. **Manual tailoring.** Slow, repetitive, easy to miss keywords a recruiter or ATS will look for.
-2. **AI "resume optimizers."** Most of them silently invent technologies, inflate scope, and produce paragraphs of LinkedIn buzzword soup. The output gets the student through a keyword filter, then falls apart in a 15-minute behavioral interview.
+1. **Manual tailoring.** Slow, repetitive, and easy to miss keywords a recruiter or ATS will screen for.
+2. **AI "resume optimizers."** Most of them silently invent technologies, inflate scope, and produce paragraphs of buzzword soup. The output might clear a keyword filter, then falls apart the moment someone asks about it in an interview.
 
 Alignr takes a third path: **edit only what's already supported by the source resume, and be honest about everything else.**
 
-## Target users
+## Who it's for
 
-- CS undergraduates applying to internships (SWE, ML, infra, etc.)
-- Bootcamp grads and self-taught devs preparing for their first technical role
-- Career-services centers that want a tool they can actually trust
+- Job seekers tailoring a resume to a specific posting — especially early-career applicants and people changing fields, where every honest keyword match counts.
+- Anyone who wants AI help with a resume but doesn't want it inventing things they'll have to defend later.
+- Career-services teams that need a tool they can actually trust to put in front of students.
 
 ## Features
 
 - **Two resume input methods** — paste plain text, or upload a **PDF / DOCX / TXT** file (max 5 MB). When both are provided, the uploaded file wins and the UI tells you so.
 - **Editable extracted-text preview** — review what the parser actually read before you click tailor.
-- **Job description input** with optional target role title and a tailoring-style selector (Conservative / Balanced / Internship-focused).
+- **Job description input** with an optional target role title and a tailoring-style selector (Light / Balanced / Aggressive).
 - **Honest, structured output:**
   - Match score (0–100)
   - Matched keywords with the evidence that backs each one
@@ -113,7 +121,7 @@ A `:ping` comment heartbeat is emitted every 15 s to keep long generations alive
 - **API key stays on the server.** Read once from `process.env.ANTHROPIC_API_KEY`, used only inside `anthropicService.js`. Never returned in any response, never logged.
 - **No request-body logging.** Resumes and JDs are private — we log only error categories, never user content.
 - **No stack traces leave the server.** A central error handler in `index.js` normalizes everything to a clean message.
-- **Per-IP rate limit** of 25 requests/hour on both AI endpoints (`express-rate-limit`). When exceeded, the user sees:
+- **Per-IP rate limit** on both AI endpoints (`express-rate-limit`). When exceeded, the user sees:
   > "Demo rate limit reached. Try again in an hour, or clone the repo to run locally with your own API key."
 - **Input validation** before any model call: minimum/maximum lengths on resume and JD, allowlist on `rewriteStyle`.
 - **File upload allowlist** on both MIME type and extension.
@@ -159,7 +167,7 @@ npm run dev
 # → opens http://localhost:5173
 ```
 
-The Vite dev server proxies `/api/*` to `http://localhost:8787`, so the frontend Just Works.
+The Vite dev server proxies `/api/*` to `http://localhost:8787`, so the frontend Just Works in development.
 
 ### 3. Production build (frontend only)
 
@@ -169,13 +177,13 @@ npm run build
 npm run preview
 ```
 
-For a real deployment, set `VITE_API_BASE` to your backend's public URL and deploy the Express server separately.
+For a real deployment, deploy the Express server separately and set `VITE_API_BASE_URL` to your backend's public URL. Note that Vite inlines `VITE_`-prefixed variables at **build time**, so this must be set on the host *before* the frontend build runs — not just at runtime.
 
 ## Why this is not just an AI wrapper
 
 A generic "GPT for resumes" tool does three things badly:
 
-1. **It invents.** Pastes the JD's tech stack into the resume whether the candidate has used it or not.
+1. **It invents.** Pastes the job description's tech stack into the resume whether the candidate has used it or not.
 2. **It hides its reasoning.** You get a wall of new text with no way to tell what changed or why.
 3. **It speaks like a startup pitch.** "Synergistic, results-driven, passionate self-starter…"
 
@@ -193,10 +201,9 @@ The "AI" is a careful editor, not a generator. The rest of the system is enginee
 - **Image / scanned-resume upload** via Claude's vision capabilities, so a photo or image-only PDF can be parsed.
 - **Export to PDF** with a clean default template (currently the tailored resume is plain text by design).
 - **LinkedIn job URL parsing** — paste a job link, fetch the description server-side.
-- **Saved tailoring history** behind optional auth, so a student can revisit and compare runs.
+- **Saved tailoring history** behind optional auth, so a user can revisit and compare runs.
 - **User accounts** with per-user rate limits and saved resumes.
-- **GitHub deployment GIF** in the README showing the flow end-to-end.
 
 ## License
 
-MIT.
+MIT
