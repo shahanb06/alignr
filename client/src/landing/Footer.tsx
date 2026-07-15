@@ -7,7 +7,7 @@ const PRODUCT_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-charcoal/10">
+    <footer className="relative overflow-hidden border-t border-charcoal/10">
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-5 py-12 sm:px-8 md:flex-row md:items-start md:justify-between">
         <div className="max-w-xs">
           <img src="/alignr-logo.png" alt="Alignr" className="h-[3.75rem] w-auto" />
@@ -40,6 +40,19 @@ export default function Footer() {
         <p className="text-xs text-charcoal/40">
           &copy; {new Date().getFullYear()} Alignr. All rights reserved.
         </p>
+      </div>
+
+      {/* Giant decorative wordmark, bottom half cropped by the page edge */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none mx-auto max-w-6xl select-none px-5 sm:px-8"
+      >
+        <span
+          className="block w-full font-semibold leading-none tracking-[-0.04em] text-[#EFECE3]"
+          style={{ fontSize: 'clamp(6rem, 26vw, 20rem)', marginBottom: '-0.35em' }}
+        >
+          Alignr
+        </span>
       </div>
     </footer>
   );

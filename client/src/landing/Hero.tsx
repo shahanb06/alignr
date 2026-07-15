@@ -1,6 +1,23 @@
-import CtaButton from './CtaButton';
+import { useRef, useState } from 'react';
 
 export default function Hero() {
+  const [resume, setResume] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const hasContent = resume.trim().length > 0;
+
+  function handleContinue() {
+    if (!hasContent) {
+      textareaRef.current?.focus();
+      return;
+    }
+    try {
+      sessionStorage.setItem('alignr:pastedResume', resume);
+    } catch {
+      // sessionStorage may be unavailable; navigation still proceeds
+    }
+    window.location.hash = '#/app';
+  }
+
   return (
     <section id="top" className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:px-8 sm:pt-24">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
@@ -28,8 +45,59 @@ export default function Hero() {
           <p className="mt-5 text-base leading-relaxed text-charcoal/60">
             No account needed. Just paste your resume and a job description.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-5">
-            <CtaButton size="lg">Tailor my resume</CtaButton>
+
+          {/* Paste-teaser card */}
+          <div
+            className={`mt-8 rounded-xl border bg-white transition-colors ${
+              hasContent ? 'border-positive' : 'border-[#E7E4DC]'
+            }`}
+          >
+            <textarea
+              ref={textareaRef}
+              rows={4}
+              value={resume}
+              onChange={(e) => setResume(e.target.value)}
+              placeholder="Paste your resume here to begin..."
+              className="block w-full resize-none rounded-t-xl border-0 bg-transparent px-4 pt-4 text-sm leading-relaxed text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-0"
+            />
+            <div className="border-t border-[#E7E4DC]" />
+            <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-relaxed text-charcoal/50">
+                {hasContent
+                  ? 'Next step: add the job description in the app.'
+                  : 'Nothing is stored or sent until you continue.'}
+              </p>
+              <button
+                type="button"
+                onClick={handleContinue}
+                className={`group inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium transition-colors ${
+                  hasContent
+                    ? 'bg-charcoal text-paper hover:bg-black'
+                    : 'bg-[#D6D3CB] text-charcoal/70'
+                }`}
+              >
+                {hasContent ? 'Continue with this resume' : 'Tailor my resume'}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* See how it works — directly beneath the card */}
+          <div className="mt-4">
             <a
               href="#features"
               className="text-sm font-medium text-charcoal underline decoration-charcoal/25 underline-offset-4 transition-colors hover:decoration-charcoal"
