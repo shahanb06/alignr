@@ -47,6 +47,25 @@ export default function App() {
 
   const [hasSavedRun, setHasSavedRun] = useState(false);
 
+  // Handoff from the landing page paste-teaser: if a pasted resume was stashed
+  // in sessionStorage, pre-fill the resume field, clear the key, and move focus
+  // to the job description textarea. Runs once on mount.
+  useEffect(() => {
+    try {
+      const handoff = sessionStorage.getItem('alignr:pastedResume');
+      if (handoff) {
+        setPastedResume(handoff);
+        sessionStorage.removeItem('alignr:pastedResume');
+        requestAnimationFrame(() => {
+          const jd = document.getElementById('jd-text') as HTMLTextAreaElement | null;
+          jd?.focus();
+        });
+      }
+    } catch {
+      // sessionStorage may be unavailable; ignore
+    }
+  }, []);
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LAST_RUN_KEY);

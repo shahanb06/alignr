@@ -63,9 +63,7 @@ export default function Hero() {
             <div className="border-t border-[#E7E4DC]" />
             <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs leading-relaxed text-charcoal/50">
-                {hasContent
-                  ? 'Next step: add the job description in the app.'
-                  : 'Nothing is stored or sent until you continue.'}
+                {hasContent ? 'Next step: add the job description in the app.' : ''}
               </p>
               <button
                 type="button"

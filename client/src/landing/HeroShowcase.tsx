@@ -1,3 +1,64 @@
+import { useEffect, useRef, useState } from 'react';
+
+// Drives a 0→1 progress value once the element is 40% visible. Runs a single
+// ~1.2s ease-out ramp via rAF. If prefers-reduced-motion is set, jumps to the
+// final state without animating.
+function useRevealProgress(): [React.RefObject<HTMLElement>, number] {
+  const ref = useRef<HTMLElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      setProgress(1);
+      return;
+    }
+
+    let raf = 0;
+    let started = false;
+    const DURATION = 1200;
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const run = () => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / DURATION, 1);
+        setProgress(easeOut(t));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !started) {
+            started = true;
+            observer.disconnect();
+            run();
+          }
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return [ref, progress];
+}
+
 const MATCHED = [
   'A skill the role calls for',
   'A tool you already use',
@@ -22,10 +83,11 @@ function CalloutPill({ label }: { label: string }) {
   );
 }
 
-function ScoreRing() {
+function ScoreRing({ progress }: { progress: number }) {
   const r = 26;
   const c = 2 * Math.PI * r;
-  const pct = 0.76;
+  const pct = 0.76 * progress;
+  const score = Math.round(76 * progress);
   return (
     <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true" className="shrink-0">
       <circle cx="36" cy="36" r={r} fill="none" stroke="#E4E4E1" strokeWidth="4" />
@@ -46,9 +108,9 @@ function ScoreRing() {
         y="36"
         textAnchor="middle"
         dominantBaseline="central"
-        className="fill-charcoal text-[18px] font-semibold"
+        className="fill-charcoal text-[18px] font-semibold tabular-nums"
       >
-        76
+        {score}
       </text>
     </svg>
   );
@@ -93,8 +155,11 @@ function Panel({
 }
 
 export default function HeroShowcase() {
+  const [revealRef, progress] = useRevealProgress();
+  const keywords = Math.round(13 * progress);
   return (
     <section
+      ref={revealRef}
       className="mx-auto max-w-6xl px-5 pb-20 sm:px-8"
       aria-label="Example of an Alignr tailoring result"
     >
@@ -105,7 +170,7 @@ export default function HeroShowcase() {
             {/* Score row */}
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-xl border border-charcoal/10 bg-white px-5 py-4 sm:px-6">
               <div className="flex items-center gap-4">
-                <ScoreRing />
+                <ScoreRing progress={progress} />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-charcoal/50">
                     Match score
@@ -119,8 +184,10 @@ export default function HeroShowcase() {
                   Keywords matched
                 </p>
                 <p className="text-sm text-charcoal/60">
-                  <span className="text-base font-semibold text-charcoal">13</span> / 15 Job
-                  Description Keywords
+                  <span className="text-base font-semibold tabular-nums text-charcoal">
+                    {keywords}
+                  </span>{' '}
+                  / 15 Job Description Keywords
                 </p>
               </div>
             </div>
