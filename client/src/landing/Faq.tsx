@@ -77,7 +77,7 @@ export default function Faq() {
             Frequently asked questions
           </h2>
           <p className="mt-4 max-w-sm text-base leading-relaxed text-charcoal/60">
-            Straight answers about how Alignr keeps your resume honest.
+            Straight answers about how Alignr stays true to your experience.
           </p>
         </div>
         <div>
