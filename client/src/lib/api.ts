@@ -64,8 +64,8 @@ export async function analyzeFit(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      signal, 
-W    });
+      signal,
+    });
   } catch (err) {
     if ((err as Error).name === 'AbortError') throw err;
     throw new Error('Network error. Please check your connection and try again.');

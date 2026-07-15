@@ -41,6 +41,26 @@ export default {
           900: '#18181b',
           950: '#09090b',
         },
+        // Marketing landing page palette (warm, evidence-based).
+        paper: '#FAF9F6',
+        charcoal: '#1A1A19',
+        positive: {
+          DEFAULT: '#1F9D57',
+          soft: '#EAF6EF',
+          border: '#C7E7D4',
+          ink: '#15683C',
+        },
+        negative: {
+          DEFAULT: '#D9504C',
+          soft: '#FBECEB',
+          border: '#F0CFCD',
+          ink: '#B0322F',
+        },
+        caution: {
+          DEFAULT: '#FBF7E9',
+          border: '#EBE2C4',
+          ink: '#7A5B16',
+        },
       },
       boxShadow: {
         card: '0 1px 0 0 rgba(0,0,0,0.02), 0 1px 3px 0 rgba(0,0,0,0.04)',
