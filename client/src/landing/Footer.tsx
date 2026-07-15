@@ -10,9 +10,10 @@ export default function Footer() {
     <footer className="border-t border-charcoal/10">
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-5 py-12 sm:px-8 md:flex-row md:items-start md:justify-between">
         <div className="max-w-xs">
-          <img src="/alignr-logo.png" alt="Alignr" className="h-8 w-auto" />
+          <img src="/alignr-logo.png" alt="Alignr" className="h-12 w-auto" />
           <p className="mt-4 text-sm leading-relaxed text-charcoal/55">
-            Evidence-based AI resume tailoring. True to your experience, ready for a real recruiter.
+            AI resume tailoring, grounded in your experience. True to your experience, ready for a
+            real recruiter.
           </p>
         </div>
 

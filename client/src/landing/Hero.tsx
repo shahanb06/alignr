@@ -8,7 +8,7 @@ export default function Hero() {
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-positive-soft px-3.5 py-1.5 text-sm font-medium text-positive-ink">
             <span className="h-1.5 w-1.5 rounded-full bg-positive" aria-hidden="true" />
-            Evidence-based AI resume tailoring
+            AI resume tailoring, grounded in your experience
           </span>
           <h1
             className="mt-6 font-semibold leading-[0.9] tracking-[-0.04em] text-charcoal"

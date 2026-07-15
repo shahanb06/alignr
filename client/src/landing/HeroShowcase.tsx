@@ -1,20 +1,17 @@
 const MATCHED = [
-  'Market and competitor research',
-  'Brand strategy support',
-  'Marketing project coordination and execution',
-  'Presentations and reports creation',
-  'Collaborate with internal teams and external partners',
-  'Monitor industry trends and recommendations',
-  'Brainstorming and creative ideation',
-  'Pursuing degree in Marketing, Business, Communications, or related field',
-  'Entrepreneurial mindset and proactive approach',
-  'Organizational and project management abilities',
-  'Microsoft Office Suite (Excel, PowerPoint, Word)',
-  'Strong written and verbal communication skills',
-  'Ability to work independently and collaboratively',
+  'A skill the role calls for',
+  'A tool you already use',
+  'Experience your resume shows',
+  "A responsibility you've held",
+  'A strength backed by your history',
+  'A qualification you hold',
 ];
 
-const MISSING = ['Track project timelines and deliverables', 'Packaging transitions'];
+const MISSING = [
+  "A requirement your resume doesn't show",
+  'A skill worth preparing for',
+  'A gap flagged for you',
+];
 
 function CalloutPill({ label }: { label: string }) {
   return (
@@ -78,17 +75,19 @@ function Panel({
   subtitle,
   children,
   className = '',
+  listClassName = 'flex flex-wrap gap-2',
 }: {
   title: string;
   subtitle: string;
   children: React.ReactNode;
   className?: string;
+  listClassName?: string;
 }) {
   return (
     <div className={`rounded-xl border border-charcoal/10 bg-white p-5 sm:p-6 ${className}`}>
       <h3 className="text-lg font-semibold text-charcoal">{title}</h3>
       <p className="mt-1 text-sm text-charcoal/50">{subtitle}</p>
-      <div className="mt-5 flex flex-wrap gap-2">{children}</div>
+      <div className={`mt-5 ${listClassName}`}>{children}</div>
     </div>
   );
 }
@@ -126,15 +125,19 @@ export default function HeroShowcase() {
               </div>
             </div>
 
-            {/* Panels — sized to content so Missing skills is never mostly empty */}
-            <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-              <Panel title="Matched keywords" subtitle="Backed by evidence in your resume">
+            {/* Panels — Matched spans wider, Missing stacks so heights stay balanced */}
+            <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-5">
+              <Panel
+                title="Matched keywords"
+                subtitle="Backed by evidence in your resume"
+                className="lg:col-span-3"
+              >
                 {MATCHED.map((k) => (
                   <Pill key={k} label={k} tone="matched" />
                 ))}
               </Panel>
 
-              <div className="relative">
+              <div className="relative lg:col-span-2">
                 {/* Callout sits directly on the Missing skills panel */}
                 <div className="pointer-events-none absolute -top-3 right-5 z-10 hidden lg:block">
                   <CalloutPill label="flagged, never added" />
@@ -142,6 +145,8 @@ export default function HeroShowcase() {
                 <Panel
                   title="Missing skills"
                   subtitle="Listed honestly — not added to your resume"
+                  className="h-full"
+                  listClassName="flex flex-col gap-2"
                 >
                   {MISSING.map((k) => (
                     <Pill key={k} label={k} tone="missing" />
@@ -156,8 +161,8 @@ export default function HeroShowcase() {
         <div className="pointer-events-none absolute -left-3 top-8 z-10 hidden lg:block">
           <CalloutPill label="honest estimate of fit" />
         </div>
-        {/* Callout overlapping the frame near the matched content */}
-        <div className="pointer-events-none absolute -left-3 bottom-14 z-10 hidden lg:block">
+        {/* Callout overlapping the frame's bottom edge, clear of the pills */}
+        <div className="pointer-events-none absolute -bottom-3 left-10 z-10 hidden lg:block">
           <CalloutPill label="every change, with a reason" />
         </div>
       </div>
