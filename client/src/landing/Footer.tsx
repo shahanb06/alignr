@@ -41,19 +41,6 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} Alignr. All rights reserved.
         </p>
       </div>
-
-      {/* Giant decorative wordmark, bottom half cropped by the page edge */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none mx-auto max-w-6xl select-none px-5 sm:px-8"
-      >
-        <span
-          className="block w-full font-semibold leading-none tracking-[-0.04em] text-[#EFECE3]"
-          style={{ fontSize: 'clamp(6rem, 26vw, 20rem)', marginBottom: '-0.35em' }}
-        >
-          Alignr
-        </span>
-      </div>
     </footer>
   );
 }
