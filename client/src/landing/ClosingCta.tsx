@@ -2,7 +2,7 @@ import CtaButton from './CtaButton';
 
 export default function ClosingCta() {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
+    <section className="mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-8">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance text-4xl font-semibold tracking-[-0.02em] text-charcoal sm:text-5xl">
           Tailored to the role. True to your experience.

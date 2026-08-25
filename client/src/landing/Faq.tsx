@@ -70,7 +70,7 @@ export default function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+    <section id="faq" className="mx-auto max-w-6xl px-5 pb-10 pt-20 sm:px-8">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div>
           <h2 className="text-balance text-3xl font-semibold tracking-[-0.02em] text-charcoal sm:text-4xl">
@@ -79,6 +79,7 @@ export default function Faq() {
           <p className="mt-4 max-w-sm text-base leading-relaxed text-charcoal/60">
             Straight answers about how Alignr stays true to your experience.
           </p>
+          <p className="mt-6 text-sm text-charcoal/40">No account needed.</p>
         </div>
         <div>
           {FAQS.map((item, i) => (
