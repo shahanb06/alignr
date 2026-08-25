@@ -21,7 +21,7 @@ export default function WhyAlignr() {
         <div
           className={`rounded-2xl border border-charcoal/10 bg-charcoal/[0.03] p-7 sm:p-8 ${CARD_LIFT_FLAT}`}
         >
-          <h3 className="text-lg font-semibold text-charcoal/70">Other AI resume tools</h3>
+          <h3 className="text-lg font-semibold text-charcoal/70">Typical AI resume tools</h3>
           <MarkList
             variant="cross"
             className="mt-6"

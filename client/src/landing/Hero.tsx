@@ -50,9 +50,8 @@ export default function Hero() {
             {...entranceProps(2, reduced)}
             className="text-balance text-2xl font-medium leading-snug tracking-[-0.01em] text-charcoal sm:text-3xl"
           >
-            Most AI tools will invent experience to win keywords. Alignr rewrites only what your
-            resume already supports, surfaces what&apos;s missing, and gives a reason for every
-            change.
+            Most AI tools invent experience to win keywords. Alignr rewrites only what your resume
+            supports &mdash; and explains every change.
           </motion.p>
           <motion.p
             {...entranceProps(3, reduced)}
