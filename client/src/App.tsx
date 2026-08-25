@@ -290,14 +290,9 @@ export default function App() {
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-2">
           <div className="flex items-center gap-3">
             <img src="/alignr-logo.png" alt="Alignr logo" className="h-7 md:h-8 w-auto" />
-            <div className="leading-tight">
-              <h1 className="text-2xl md:text-3xl font-semibold tracking-[-0.01em] leading-none text-ink-900">
-                Alignr
-              </h1>
-              <p className="mt-0.5 text-[11px] md:text-[12px] leading-tight text-ink-500">
-                Honest AI Resume Tailoring
-              </p>
-            </div>
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-[-0.01em] leading-none text-ink-900">
+              Alignr
+            </h1>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -503,13 +498,13 @@ export default function App() {
               </li>
               <li>
                 Click "Tailor My Resume." Alignr first analyzes how well your resume matches the
-                job description — you'll see a match score and which keywords are present or
+                job description. You'll see a match score and which keywords are present or
                 missing. Then it streams a tailored version of your resume, with a side-by-side
                 diff and reasons for every change.
               </li>
               <li>
                 Alignr is powered by AI, guided by a system prompt designed to prevent fabrication.
-                The model only rewrites what's already supported by your resume — it surfaces
+                The model only rewrites what's already supported by your resume. It surfaces
                 missing skills rather than inventing them, and every change comes with a reason you
                 can review.
               </li>
