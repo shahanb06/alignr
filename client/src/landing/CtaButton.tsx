@@ -2,26 +2,37 @@ interface CtaButtonProps {
   children: React.ReactNode;
   href?: string;
   size?: 'md' | 'lg';
+  /**
+   * `dark` (default) is the charcoal button used on the cream page background.
+   * `light` inverts it to a cream button for use on dark backgrounds.
+   */
+  tone?: 'dark' | 'light';
   className?: string;
 }
 
 /**
- * Solid black button with white text and a trailing right-arrow icon.
- * Used as the primary call to action across the landing page.
+ * Primary call to action with a trailing right-arrow icon. Defaults to a solid
+ * charcoal button with cream text; the `light` tone flips it for dark sections.
  */
 export default function CtaButton({
   children,
   href = '#/app',
   size = 'md',
+  tone = 'dark',
   className = '',
 }: CtaButtonProps) {
   const sizing =
     size === 'lg' ? 'px-6 py-3.5 text-base' : 'px-5 py-3 text-sm';
 
+  const toning =
+    tone === 'light'
+      ? 'bg-paper text-charcoal hover:bg-white'
+      : 'bg-charcoal text-paper hover:bg-black';
+
   return (
     <a
       href={href}
-      className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-charcoal font-medium text-paper transition-colors hover:bg-black ${sizing} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors ${toning} ${sizing} ${className}`}
     >
       {children}
       <svg
