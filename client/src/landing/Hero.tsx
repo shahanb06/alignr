@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import HeroPaper3D from './HeroPaper3D';
 
 export default function Hero() {
   const [resume, setResume] = useState('');
@@ -19,8 +20,9 @@ export default function Hero() {
   }
 
   return (
-    <section id="top" className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:px-8 sm:pt-24">
-      <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+    <section id="top" className="relative mx-auto max-w-6xl px-5 pt-16 pb-10 sm:px-8 sm:pt-24">
+      <HeroPaper3D />
+      <div className="relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Left: pill + giant floating wordmark */}
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-positive-soft px-3.5 py-1.5 text-sm font-medium text-positive-ink">

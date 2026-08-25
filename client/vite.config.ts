@@ -16,4 +16,9 @@ export default defineConfig({
       },
     },
   },
+  // `vite preview` serves the production build behind the same sandbox proxy
+  // host as the dev server, so it needs the same host allowance.
+  preview: {
+    allowedHosts: true,
+  },
 });
