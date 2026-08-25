@@ -63,7 +63,7 @@ function FaqItem({
 }
 
 export default function Faq() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section id="faq" className="mx-auto max-w-6xl px-5 pb-10 pt-20 sm:px-8">

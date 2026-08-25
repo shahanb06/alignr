@@ -30,7 +30,7 @@ export default function CtaPattern() {
             strokeWidth="1.1"
             strokeLinecap="round"
             strokeLinejoin="round"
-            opacity="0.055"
+            opacity="0.085"
           >
             {/* Resume sheet with a folded corner and list lines */}
             <g transform="translate(14 16)">

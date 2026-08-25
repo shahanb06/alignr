@@ -23,7 +23,7 @@ export default function Footer() {
             className="h-[3.75rem] w-auto brightness-0 invert opacity-[0.98]"
           />
           <p className="mt-4 text-sm leading-relaxed text-paper/60">
-            AI Resume Tailoring, Grounded in Your Experience. True to your experience, ready for a
+            AI Resume Tailoring, Grounded In Your Experience. True to your experience, ready for a
             real recruiter.
           </p>
         </div>

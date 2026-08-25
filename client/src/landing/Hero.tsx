@@ -38,7 +38,16 @@ export default function Hero() {
           <motion.h1
             {...entranceProps(1, reduced)}
             className="mt-6 font-semibold leading-[0.9] tracking-[-0.04em] text-charcoal"
-            style={{ fontSize: 'clamp(4.5rem, 18vw, 12rem)' }}
+            style={{
+              fontSize: 'clamp(4.5rem, 18vw, 12rem)',
+              // Thin white outline so the letterforms keep a crisp edge where
+              // they overlap the 3D cards behind them. `paint-order: stroke`
+              // draws the stroke beneath the fill so the glyph weight is
+              // preserved instead of being eaten into from the inside.
+              paintOrder: 'stroke fill',
+              WebkitTextStrokeWidth: '1px',
+              WebkitTextStrokeColor: '#FAF9F6',
+            }}
           >
             Alignr
           </motion.h1>
