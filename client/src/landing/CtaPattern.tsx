@@ -1,7 +1,7 @@
 /**
  * Decorative line-art texture for the light closing-CTA section.
  *
- * A single 300x260 tile of thin-stroke resume/document motifs (sheets, an
+ * A single 207x180 tile of thin-stroke resume/document motifs (sheets, an
  * avatar-on-card glyph, checkmarks, a magnifying glass, arrows, list lines and
  * sparkles) repeated via <pattern>. Strokes are a warm grey at very low
  * opacity so the result reads as paper texture rather than iconography, and the
@@ -18,19 +18,23 @@ export default function CtaPattern() {
       <defs>
         <pattern
           id="cta-lineart"
-          width="300"
-          height="260"
+          width="207"
+          height="180"
           patternUnits="userSpaceOnUse"
           x="0"
           y="0"
         >
+          {/* The motifs are laid out on a 300x260 grid, so the whole group is
+              scaled to 0.69 to fit the tighter tile. Stroke width is set to 1.6
+              so it renders at ~1.1px once scaled. */}
           <g
             fill="none"
             stroke="#8A8172"
-            strokeWidth="1.1"
+            strokeWidth="1.6"
             strokeLinecap="round"
             strokeLinejoin="round"
-            opacity="0.085"
+            opacity="0.11"
+            transform="scale(0.69)"
           >
             {/* Resume sheet with a folded corner and list lines */}
             <g transform="translate(14 16)">

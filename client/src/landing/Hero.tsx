@@ -33,20 +33,21 @@ export default function Hero() {
             className="inline-flex items-center gap-2 rounded-full bg-positive-soft px-3.5 py-1.5 text-sm font-medium text-positive-ink"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-positive" aria-hidden="true" />
-            AI Resume Tailoring, Grounded in Your Experience
+            AI Resume Tailoring, Grounded In Your Experience
           </motion.span>
           <motion.h1
             {...entranceProps(1, reduced)}
             className="mt-6 font-semibold leading-[0.9] tracking-[-0.04em] text-charcoal"
             style={{
               fontSize: 'clamp(4.5rem, 18vw, 12rem)',
-              // Thin white outline so the letterforms keep a crisp edge where
-              // they overlap the 3D cards behind them. `paint-order: stroke`
-              // draws the stroke beneath the fill so the glyph weight is
-              // preserved instead of being eaten into from the inside.
+              // Thin warm-grey outline so the letterforms keep a crisp edge
+              // against both the cream page and the 3D cards behind them.
+              // `paint-order: stroke` draws the stroke beneath the fill so the
+              // glyph weight is preserved instead of being eaten into from the
+              // inside.
               paintOrder: 'stroke fill',
               WebkitTextStrokeWidth: '1px',
-              WebkitTextStrokeColor: '#FAF9F6',
+              WebkitTextStrokeColor: '#C9C4B8',
             }}
           >
             Alignr
