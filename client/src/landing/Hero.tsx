@@ -109,16 +109,6 @@ export default function Hero() {
               </button>
             </div>
           </motion.div>
-
-          {/* See how it works — directly beneath the card */}
-          <motion.div {...entranceProps(5, reduced)} className="mt-4">
-            <a
-              href="#features"
-              className="text-sm font-medium text-charcoal underline decoration-charcoal/25 underline-offset-4 transition-colors hover:decoration-charcoal"
-            >
-              See how it works
-            </a>
-          </motion.div>
         </div>
       </div>
     </section>

@@ -128,10 +128,17 @@ function SoftShadow({
   order: number;
   strength: number;
 }) {
+  // Feathered falloff: many closely-spaced slabs whose opacity decays toward
+  // ~0 at the outer edge, so the shadow dissolves into the background instead
+  // of terminating on a visible step.
   const layers = [
-    { grow: 0.03, opacity: 0.05 },
-    { grow: 0.1, opacity: 0.032 },
-    { grow: 0.2, opacity: 0.019 },
+    { grow: 0.02, opacity: 0.03 },
+    { grow: 0.06, opacity: 0.025 },
+    { grow: 0.11, opacity: 0.02 },
+    { grow: 0.17, opacity: 0.015 },
+    { grow: 0.24, opacity: 0.011 },
+    { grow: 0.32, opacity: 0.007 },
+    { grow: 0.42, opacity: 0.0035 },
   ];
   return (
     <>
@@ -337,13 +344,13 @@ function ResumeCard({
         />
       </group>
       {/* Thin rim just behind the face, reading as a card edge. */}
-      <mesh geometry={border} position={[0, 0, -0.004]} renderOrder={order + 3}>
+      <mesh geometry={border} position={[0, 0, -0.004]} renderOrder={order + 8}>
         <meshBasicMaterial color={EDGE} transparent opacity={opacity * 0.55} depthWrite={false} />
       </mesh>
       {/* Frosted glass slab: cool, matte, and subtly see-through so the cards
           behind register faintly through it. Rear cards are fainter, which
           separates the layers without adding weight. */}
-      <mesh geometry={body} renderOrder={order + 4}>
+      <mesh geometry={body} renderOrder={order + 9}>
         <meshPhysicalMaterial
           color={GLASS}
           roughness={0.42}
@@ -356,8 +363,8 @@ function ResumeCard({
       </mesh>
       {/* UI details sit just in front of the face and draw after it. */}
       <group position={[0, 0, 0.014]}>
-        <AvatarGlyph x={layout.avatar.x} y={layout.avatar.y} order={order + 6} />
-        <ScoreRing x={layout.ring.x} y={layout.ring.y} fill={score} order={order + 6} />
+        <AvatarGlyph x={layout.avatar.x} y={layout.avatar.y} order={order + 11} />
+        <ScoreRing x={layout.ring.x} y={layout.ring.y} fill={score} order={order + 11} />
         {layout.rows.map((row) => (
           <TextLine
             key={row.y}
@@ -365,7 +372,7 @@ function ResumeCard({
             y={row.y}
             left={layout.left}
             opacity={row.opacity}
-            order={order + 6}
+            order={order + 11}
           />
         ))}
       </group>
