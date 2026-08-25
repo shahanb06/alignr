@@ -219,7 +219,7 @@ export default function ResumeInputPanel({
             placeholder={
               usingFile
                 ? ''
-                : 'Paste your resume text here. Plain text is fine — section headers, bullets, and skills lines all work.'
+                : 'Paste your resume text here. Plain text is fine. Section headers, bullets, and skills lines all work.'
             }
             className="thin-scroll flex-1 min-h-[260px] resize-none rounded-lg border border-ink-200 bg-white p-3 font-mono text-[12.5px] leading-relaxed text-ink-900 outline-none transition placeholder:text-ink-400 focus:border-ink-400 disabled:opacity-60"
           />

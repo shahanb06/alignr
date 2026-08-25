@@ -211,7 +211,7 @@ export default function HeroShowcase() {
                 </div>
                 <Panel
                   title="Missing skills"
-                  subtitle="Listed honestly — not added to your resume"
+                  subtitle="Listed honestly, not added to your resume"
                   className="h-full"
                   listClassName="flex flex-col gap-2"
                 >
