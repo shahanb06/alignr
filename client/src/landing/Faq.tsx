@@ -19,7 +19,7 @@ const FAQS = [
   },
   {
     q: 'Will the result hold up in an interview?',
-    a: 'That is the goal. Because nothing is fabricated and every change is explained, you can speak to everything on the page with confidence.',
+    a: 'That is the goal! Because nothing is fabricated and every change is explained, you can speak to everything on the page with confidence.',
   },
 ];
 
