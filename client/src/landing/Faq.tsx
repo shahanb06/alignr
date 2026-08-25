@@ -14,10 +14,6 @@ const FAQS = [
     a: 'Yes. Every run includes a full before and after diff, and each edit carries a plain language reason so you understand the intent behind it.',
   },
   {
-    q: 'Do I need an account to use it?',
-    a: 'No account is required. Paste your resume and a job description, and you get a tailored result you can review right away.',
-  },
-  {
     q: 'Will the result hold up in an interview?',
     a: 'That is the goal! Because nothing is fabricated and every change is explained, you can speak to everything on the page with confidence.',
   },
