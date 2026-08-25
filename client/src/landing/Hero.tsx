@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import HeroPaper3D from './HeroPaper3D';
+import { entranceProps } from './motion';
 
 export default function Hero() {
+  const reduced = useReducedMotion();
   const [resume, setResume] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const hasContent = resume.trim().length > 0;
@@ -25,31 +28,42 @@ export default function Hero() {
       <div className="relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Left: pill + giant floating wordmark */}
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-positive-soft px-3.5 py-1.5 text-sm font-medium text-positive-ink">
+          <motion.span
+            {...entranceProps(0, reduced)}
+            className="inline-flex items-center gap-2 rounded-full bg-positive-soft px-3.5 py-1.5 text-sm font-medium text-positive-ink"
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-positive" aria-hidden="true" />
             AI Resume Tailoring, Grounded in Your Experience
-          </span>
-          <h1
+          </motion.span>
+          <motion.h1
+            {...entranceProps(1, reduced)}
             className="mt-6 font-semibold leading-[0.9] tracking-[-0.04em] text-charcoal"
             style={{ fontSize: 'clamp(4.5rem, 18vw, 12rem)' }}
           >
             Alignr
-          </h1>
+          </motion.h1>
         </div>
 
         {/* Right: headline paragraph + supporting copy */}
         <div className="lg:pt-6">
-          <p className="text-balance text-2xl font-medium leading-snug tracking-[-0.01em] text-charcoal sm:text-3xl">
+          <motion.p
+            {...entranceProps(2, reduced)}
+            className="text-balance text-2xl font-medium leading-snug tracking-[-0.01em] text-charcoal sm:text-3xl"
+          >
             Most AI tools will invent experience to win keywords. Alignr rewrites only what your
             resume already supports, surfaces what&apos;s missing, and gives a reason for every
             change.
-          </p>
-          <p className="mt-5 text-base leading-relaxed text-charcoal/60">
+          </motion.p>
+          <motion.p
+            {...entranceProps(3, reduced)}
+            className="mt-5 text-base leading-relaxed text-charcoal/60"
+          >
             No account needed. Just paste your resume and a job description.
-          </p>
+          </motion.p>
 
           {/* Paste-teaser card */}
-          <div
+          <motion.div
+            {...entranceProps(4, reduced)}
             className={`mt-8 rounded-xl border bg-white transition-colors ${
               hasContent ? 'border-positive' : 'border-[#E7E4DC]'
             }`}
@@ -94,17 +108,17 @@ export default function Hero() {
                 </svg>
               </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* See how it works — directly beneath the card */}
-          <div className="mt-4">
+          <motion.div {...entranceProps(5, reduced)} className="mt-4">
             <a
               href="#features"
               className="text-sm font-medium text-charcoal underline decoration-charcoal/25 underline-offset-4 transition-colors hover:decoration-charcoal"
             >
               See how it works
             </a>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

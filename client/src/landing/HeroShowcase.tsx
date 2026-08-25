@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { calloutProps } from './motion';
 
 // Drives a 0→1 progress value once the element is 40% visible. Runs a single
 // ~1.2s ease-out ramp via rAF. If prefers-reduced-motion is set, jumps to the
@@ -74,12 +76,20 @@ const MISSING = [
   'A gap flagged for you',
 ];
 
-function CalloutPill({ label }: { label: string }) {
+/**
+ * `order` sets the position in the 150ms-apart sequence; `show` gates the
+ * sequence on the score reveal having finished.
+ */
+function CalloutPill({ label, order, show }: { label: string; order: number; show: boolean }) {
+  const reduced = useReducedMotion();
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-charcoal px-3 py-1.5 text-xs font-medium text-paper shadow-lg shadow-charcoal/20">
+    <motion.span
+      {...calloutProps(order, show, reduced)}
+      className="inline-flex items-center gap-1.5 rounded-full bg-charcoal px-3 py-1.5 text-xs font-medium text-paper shadow-lg shadow-charcoal/20"
+    >
       <span className="h-1.5 w-1.5 rounded-full bg-paper/60" aria-hidden="true" />
       {label}
-    </span>
+    </motion.span>
   );
 }
 
@@ -157,6 +167,8 @@ function Panel({
 export default function HeroShowcase() {
   const [revealRef, progress] = useRevealProgress();
   const keywords = Math.round(13 * progress);
+  // The 0→76 score ramp has finished, so the callouts may start their sequence.
+  const calloutsReady = progress >= 1;
   return (
     <section
       ref={revealRef}
@@ -207,7 +219,7 @@ export default function HeroShowcase() {
               <div className="relative lg:col-span-2">
                 {/* Callout sits directly on the Missing skills panel */}
                 <div className="pointer-events-none absolute -top-3 right-5 z-10 hidden lg:block">
-                  <CalloutPill label="flagged, never added" />
+                  <CalloutPill label="flagged, never added" order={1} show={calloutsReady} />
                 </div>
                 <Panel
                   title="Missing skills"
@@ -226,19 +238,19 @@ export default function HeroShowcase() {
 
         {/* Callout anchored near the score row */}
         <div className="pointer-events-none absolute -left-3 top-8 z-10 hidden lg:block">
-          <CalloutPill label="honest estimate of fit" />
+          <CalloutPill label="honest estimate of fit" order={0} show={calloutsReady} />
         </div>
         {/* Callout overlapping the frame's bottom edge, clear of the pills */}
         <div className="pointer-events-none absolute -bottom-3 left-10 z-10 hidden lg:block">
-          <CalloutPill label="every change, with a reason" />
+          <CalloutPill label="every change, with a reason" order={2} show={calloutsReady} />
         </div>
       </div>
 
       {/* Callout labels for small screens, stacked below the frame */}
       <div className="mt-5 flex flex-wrap justify-center gap-2 lg:hidden">
-        <CalloutPill label="honest estimate of fit" />
-        <CalloutPill label="flagged, never added" />
-        <CalloutPill label="every change, with a reason" />
+        <CalloutPill label="honest estimate of fit" order={0} show={calloutsReady} />
+        <CalloutPill label="flagged, never added" order={1} show={calloutsReady} />
+        <CalloutPill label="every change, with a reason" order={2} show={calloutsReady} />
       </div>
     </section>
   );

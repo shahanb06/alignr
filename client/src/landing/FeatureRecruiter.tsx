@@ -1,4 +1,5 @@
 import MarkList from './ListItems';
+import { CARD_LIFT, sectionRevealClass, useInViewOnce } from './motion';
 
 const WARNINGS = [
   {
@@ -17,7 +18,9 @@ const WARNINGS = [
 
 function WarningsCard() {
   return (
-    <div className="rounded-2xl border border-charcoal/10 bg-white p-4 shadow-xl shadow-charcoal/5 sm:p-5">
+    <div
+      className={`rounded-2xl border border-charcoal/10 bg-white p-4 shadow-xl shadow-charcoal/5 sm:p-5 ${CARD_LIFT}`}
+    >
       <div className="mb-4 px-2 pt-1">
         <span className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">
           Recruiter warnings
@@ -39,8 +42,12 @@ function WarningsCard() {
 }
 
 export default function FeatureRecruiter() {
+  const [revealRef, inView] = useInViewOnce<HTMLElement>();
   return (
-    <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+    <section
+      ref={revealRef}
+      className={`mx-auto max-w-6xl px-5 py-20 sm:px-8 ${sectionRevealClass(inView)}`}
+    >
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Card first so it sits on the left at desktop, alternating from the prior section */}
         <div className="order-2 lg:order-1">

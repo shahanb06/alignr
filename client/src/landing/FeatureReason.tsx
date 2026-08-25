@@ -1,9 +1,12 @@
 import MarkList from './ListItems';
+import { CARD_LIFT, sectionRevealClass, useInViewOnce } from './motion';
 
 /** Neutral, generic representation of a single tracked edit. No real copy. */
 function ChangeRecordCard() {
   return (
-    <div className="rounded-2xl border border-charcoal/10 bg-white p-6 shadow-xl shadow-charcoal/5 sm:p-7">
+    <div
+      className={`rounded-2xl border border-charcoal/10 bg-white p-6 shadow-xl shadow-charcoal/5 sm:p-7 ${CARD_LIFT}`}
+    >
       <div className="mb-5 flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">
           Change record
@@ -50,8 +53,13 @@ function ChangeRecordCard() {
 }
 
 export default function FeatureReason() {
+  const [revealRef, inView] = useInViewOnce<HTMLElement>();
   return (
-    <section id="features" className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+    <section
+      ref={revealRef}
+      id="features"
+      className={`mx-auto max-w-6xl px-5 py-20 sm:px-8 ${sectionRevealClass(inView)}`}
+    >
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
           <h2 className="text-balance text-3xl font-semibold tracking-[-0.02em] text-charcoal sm:text-4xl">

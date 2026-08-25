@@ -1,8 +1,14 @@
 import MarkList from './ListItems';
+import { CARD_LIFT, CARD_LIFT_FLAT, sectionRevealClass, useInViewOnce } from './motion';
 
 export default function WhyAlignr() {
+  const [revealRef, inView] = useInViewOnce<HTMLElement>();
   return (
-    <section id="why" className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+    <section
+      ref={revealRef}
+      id="why"
+      className={`mx-auto max-w-6xl px-5 py-20 sm:px-8 ${sectionRevealClass(inView)}`}
+    >
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance text-3xl font-semibold tracking-[-0.02em] text-charcoal sm:text-4xl">
           Why Alignr
@@ -12,7 +18,9 @@ export default function WhyAlignr() {
 
       <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Muted "other tools" card */}
-        <div className="rounded-2xl border border-charcoal/10 bg-charcoal/[0.03] p-7 sm:p-8">
+        <div
+          className={`rounded-2xl border border-charcoal/10 bg-charcoal/[0.03] p-7 sm:p-8 ${CARD_LIFT_FLAT}`}
+        >
           <h3 className="text-lg font-semibold text-charcoal/70">Other AI resume tools</h3>
           <MarkList
             variant="cross"
@@ -27,7 +35,9 @@ export default function WhyAlignr() {
         </div>
 
         {/* Emphasized Alignr card */}
-        <div className="rounded-2xl border border-charcoal/15 bg-white p-7 shadow-xl shadow-charcoal/5 sm:p-8">
+        <div
+          className={`rounded-2xl border border-charcoal/15 bg-white p-7 shadow-xl shadow-charcoal/5 sm:p-8 ${CARD_LIFT}`}
+        >
           <div className="flex items-center gap-2.5">
             <img src="/alignr-logo.png" alt="Alignr" className="h-6 w-auto" />
             <h3 className="text-lg font-semibold text-charcoal">Alignr</h3>
