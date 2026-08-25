@@ -51,7 +51,7 @@ export default function Hero() {
             className="text-balance text-2xl font-medium leading-snug tracking-[-0.01em] text-charcoal sm:text-3xl"
           >
             Most AI tools invent experience to win keywords. Alignr rewrites only what your resume
-            supports &mdash; and explains every change.
+            supports. It explains every change.
           </motion.p>
           <motion.p
             {...entranceProps(3, reduced)}
@@ -89,7 +89,7 @@ export default function Hero() {
                     : 'bg-[#D6D3CB] text-charcoal/70'
                 }`}
               >
-                {hasContent ? 'Continue with this resume' : 'Tailor my resume'}
+                {hasContent ? 'Continue with this resume' : 'Tailor My Resume'}
                 <svg
                   width="16"
                   height="16"

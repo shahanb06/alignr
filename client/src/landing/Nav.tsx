@@ -26,7 +26,7 @@ export default function Nav() {
           ))}
         </div>
 
-        <CtaButton>Tailor my resume</CtaButton>
+        <CtaButton>Tailor My Resume</CtaButton>
       </nav>
     </header>
   );

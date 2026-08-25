@@ -12,7 +12,7 @@ export default function ClosingCta() {
           interview.
         </p>
         <div className="mt-9 flex justify-center">
-          <CtaButton size="lg">Tailor my resume</CtaButton>
+          <CtaButton size="lg">Tailor My Resume</CtaButton>
         </div>
       </div>
     </section>
