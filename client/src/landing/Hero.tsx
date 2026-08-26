@@ -64,8 +64,10 @@ export default function Hero() {
     window.location.hash = '#/app';
   }
 
+  // Only the section's top padding is reduced below; the internal rhythm of
+  // the wordmark, headline, subtext, and paste box is left untouched.
   return (
-    <section id="top" className="relative mx-auto max-w-6xl px-5 pt-16 pb-10 sm:px-8 sm:pt-24">
+    <section id="top" className="relative mx-auto max-w-6xl px-5 pt-8 pb-10 sm:px-8 sm:pt-12">
       <HeroPaper3D />
       <div className="relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Left: pill + giant floating wordmark */}

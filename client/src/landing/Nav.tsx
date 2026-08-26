@@ -15,7 +15,11 @@ export default function Nav() {
         regardless of how much wider the CTA is than the nav links. The centre
         column is `auto` so the logo keeps its intrinsic proportions.
       */}
-      <nav className="mx-auto grid max-w-6xl grid-cols-[auto_1fr] items-center gap-4 px-5 py-3 sm:px-8 md:grid-cols-[1fr_auto_1fr] md:gap-6">
+      {/*
+        `py-2` rather than `py-3`: the slightly larger logo mark drives the row
+        height, so the padding is trimmed to keep the header height unchanged.
+      */}
+      <nav className="mx-auto grid max-w-6xl grid-cols-[auto_1fr] items-center gap-4 px-5 py-2 sm:px-8 md:grid-cols-[1fr_auto_1fr] md:gap-6">
         {/*
           Below `md` the links are hidden, so this cell is removed from the grid
           entirely rather than left as an empty `1fr` track — otherwise the
@@ -38,7 +42,8 @@ export default function Nav() {
           className="flex items-center justify-self-start md:justify-self-center"
           aria-label="Alignr home"
         >
-          <img src="/alignr-logo.png" alt="Alignr" className="h-[4.3rem] w-auto" />
+          {/* `w-auto` keeps the mark's intrinsic aspect ratio as height scales. */}
+          <img src="/alignr-logo.png" alt="Alignr" className="h-[4.85rem] w-auto" />
         </a>
 
         <div className="flex items-center justify-self-end">
