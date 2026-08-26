@@ -1,35 +1,27 @@
 /**
  * Decorative line-art texture for the light closing-CTA section.
  *
- * Resume/document motifs (sheets, avatar cards, checkmarks, a magnifying glass,
- * arrows, list lines and sparkles) are scattered across a large tile so the
- * texture reads as organic paper clutter rather than a rigid icon grid.
+ * Resume/document motifs (sheets, avatar cards, checkmarks, magnifying glasses,
+ * arrows, plus signs and list lines) are scattered once across the section
+ * rather than tiled. A tiled <pattern> always clips at the fill boundary, which
+ * left half-cut icons along the section edges; placing each motif explicitly
+ * inside a padded safe area guarantees every glyph renders complete.
  *
- * Placement uses a jittered grid driven by a seeded PRNG: one motif per cell,
- * offset by up to ~43% of the cell in each axis and given a random rotation and
- * slight scale. That keeps coverage even (no clumps or bald patches) while
- * destroying the row/column rhythm a plain grid produces. The seed is fixed, so
- * the layout is deterministic across renders.
+ * Placement uses best-candidate sampling driven by a seeded PRNG: a candidate is
+ * kept only if it clears already-placed motifs by a *varying* minimum distance,
+ * which yields controlled randomness - a few tight clusters, a few wider gaps -
+ * instead of the even spacing a jittered grid produces. Points in the central
+ * text band are thinned so the heading and subtext stay dominant. The seed is
+ * fixed, so the composition is deterministic across renders.
  *
- * The motif field is defined once and stamped nine times (the tile plus its
- * eight neighbours) inside the <pattern>, so motifs that overhang an edge wrap
- * around seamlessly instead of being clipped at the tile seam.
- *
- * Strokes are a warm grey at low opacity so the layer stays clearly subordinate
- * to the heading and subtext. It is aria-hidden and pointer-events-none, so it
- * never interferes with the content on top.
+ * Positions are percentages inside a padded wrapper, so the layer is responsive
+ * while the padding absorbs each motif's half-width overhang - no icon can
+ * reach the left, right, top or bottom boundary. Strokes are a warm grey at low
+ * opacity, and the layer is aria-hidden, non-selectable and pointer-events-none,
+ * so it never competes with or interferes with the content on top.
  */
 
-const TILE_W = 518;
-const TILE_H = 444;
-const CELL = 74;
-const COLS = TILE_W / CELL;
-const ROWS = TILE_H / CELL;
-
-/** Fraction of a cell a motif may wander from its cell centre. */
-const JITTER = 0.86;
-
-/** Deterministic PRNG so the scatter is identical on every render. */
+/** Deterministic PRNG so the composition is identical on every render. */
 function mulberry32(seed: number) {
   let a = seed;
   return () => {
@@ -42,8 +34,9 @@ function mulberry32(seed: number) {
 }
 
 /**
- * Motif geometry, drawn centred on the origin so rotation pivots through the
- * middle of each glyph rather than swinging it around a corner.
+ * Motif geometry, drawn centred on the origin inside a -30..30 viewBox. The
+ * largest glyph measures 42x28, whose ~50.5 diagonal still clears the 60-unit
+ * box, so rotation never clips a motif against its own viewport.
  */
 const MOTIFS: Record<string, React.ReactNode> = {
   sheet: (
@@ -71,14 +64,9 @@ const MOTIFS: Record<string, React.ReactNode> = {
       <path d="M0 5.5l4 4L12 0" />
     </g>
   ),
-  sparkle: (
-    <g transform="translate(-8 -8)">
-      <path d="M8 0v16M0 8h16M2.5 2.5l11 11M13.5 2.5l-11 11" />
-    </g>
-  ),
-  sparkleSmall: (
-    <g transform="translate(-5 -5)">
-      <path d="M5 0v10M0 5h10" />
+  plus: (
+    <g transform="translate(-7 -7)">
+      <path d="M7 0v14M0 7h14" />
     </g>
   ),
   avatar: (
@@ -86,6 +74,13 @@ const MOTIFS: Record<string, React.ReactNode> = {
       <rect x="0" y="0" width="42" height="28" rx="3" />
       <circle cx="12" cy="14" r="5" />
       <path d="M23 10h13M23 17h9" />
+    </g>
+  ),
+  avatarSmall: (
+    <g transform="translate(-15 -10)">
+      <rect x="0" y="0" width="30" height="20" rx="2.5" />
+      <circle cx="9" cy="10" r="3.6" />
+      <path d="M17 7h9M17 13h6" />
     </g>
   ),
   glass: (
@@ -104,88 +99,175 @@ const MOTIFS: Record<string, React.ReactNode> = {
       <path d="M0 0h34M0 7h26M0 14h30" />
     </g>
   ),
+  linesShort: (
+    <g transform="translate(-11 -4)">
+      <path d="M0 0h22M0 8h15" />
+    </g>
+  ),
 };
 
-const MOTIF_KEYS = Object.keys(MOTIFS);
+/**
+ * Draw weights: quiet connective glyphs appear more often than the heavier
+ * sheets and avatar cards, so denser areas do not turn into visual noise.
+ */
+const MOTIF_POOL: string[] = [
+  'sheet',
+  'sheetSmall',
+  'sheetSmall',
+  'checkCircle',
+  'check',
+  'check',
+  'plus',
+  'plus',
+  'avatar',
+  'avatarSmall',
+  'glass',
+  'glass',
+  'arrow',
+  'arrow',
+  'lines',
+  'linesShort',
+  'linesShort',
+];
+
+/**
+ * Approximate visual weight (ink area) of each motif, used to keep the two
+ * halves balanced. The heavy glyphs are the filled-looking sheets and cards.
+ */
+const MOTIF_WEIGHT: Record<string, number> = {
+  sheet: 1.0,
+  sheetSmall: 0.7,
+  avatar: 1.0,
+  avatarSmall: 0.6,
+  lines: 0.6,
+  linesShort: 0.35,
+  checkCircle: 0.5,
+  glass: 0.45,
+  check: 0.2,
+  plus: 0.2,
+  arrow: 0.25,
+};
+
+/** Subsets used to steer whichever half is currently over- or under-weight. */
+const LIGHT_POOL = MOTIF_POOL.filter((k) => MOTIF_WEIGHT[k] <= 0.45);
+const HEAVY_POOL = MOTIF_POOL.filter((k) => MOTIF_WEIGHT[k] >= 0.6);
 
 type Placement = {
   key: string;
+  /** Percentages within the padded safe area. */
   x: number;
   y: number;
   rotate: number;
-  scale: number;
+  /** Rendered box size in px; the motif scales with it. */
+  size: number;
 };
 
-/** One motif per grid cell, then knocked off the grid by jitter/rotation/scale. */
+/**
+ * Best-candidate sampling: each accepted point must clear its neighbours by a
+ * randomised minimum distance, which produces clusters and gaps rather than the
+ * uniform spacing of a grid. The central band is thinned to protect the copy.
+ */
 const PLACEMENTS: Placement[] = (() => {
-  const rand = mulberry32(20260825);
+  const rand = mulberry32(20260826);
   const out: Placement[] = [];
+  const TARGET = 52;
+  const ATTEMPTS = 1400;
+  let weightL = 0;
+  let weightR = 0;
 
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
-      const key = MOTIF_KEYS[Math.floor(rand() * MOTIF_KEYS.length)];
-      out.push({
-        key,
-        x: Number((col * CELL + CELL / 2 + (rand() - 0.5) * CELL * JITTER).toFixed(1)),
-        y: Number((row * CELL + CELL / 2 + (rand() - 0.5) * CELL * JITTER).toFixed(1)),
-        rotate: Number(((rand() - 0.5) * 64).toFixed(1)),
-        scale: Number((0.82 + rand() * 0.4).toFixed(2)),
-      });
-    }
+  // Central band occupied by the heading, subtext and button.
+  const inTextBand = (x: number, y: number) => x > 24 && x < 76 && y > 16 && y < 84;
+
+  for (let i = 0; i < ATTEMPTS && out.length < TARGET; i++) {
+    const x = rand() * 100;
+    const y = rand() * 100;
+
+    // Thin the copy area instead of excluding it, so the texture still reads as
+    // continuous behind the text without crowding it.
+    if (inTextBand(x, y) && rand() > 0.4) continue;
+
+    // Varying radius: small values allow occasional tight clusters, larger ones
+    // open up breathing room.
+    const minDist = 7.5 + rand() * 7;
+    const clears = out.every((p) => {
+      const dx = p.x - x;
+      const dy = (p.y - y) * 0.62; // vertical space is scarcer than horizontal
+      return Math.hypot(dx, dy) >= minDist;
+    });
+    if (!clears) continue;
+
+    const size = 30 + rand() * 22;
+
+    // Visual balance without mirroring. Ink scales with the glyph box, so the
+    // running total is weighted by size; the half that is ahead draws from the
+    // light pool and the half behind draws from the heavy pool. Balance is
+    // steered through motif choice, never through matched positions.
+    const left = x < 50;
+    const mine = left ? weightL : weightR;
+    const other = left ? weightR : weightL;
+    const pool =
+      mine > other * 1.03 ? LIGHT_POOL : mine < other * 0.97 ? HEAVY_POOL : MOTIF_POOL;
+    const key = pool[Math.floor(rand() * pool.length)];
+
+    const w = MOTIF_WEIGHT[key] * (size / 40);
+    if (left) weightL += w;
+    else weightR += w;
+
+    out.push({
+      key,
+      x: Number(x.toFixed(2)),
+      y: Number(y.toFixed(2)),
+      rotate: Number(((rand() - 0.5) * 58).toFixed(1)),
+      size: Number(size.toFixed(1)),
+    });
   }
 
   return out;
 })();
 
-/** Tile plus its eight neighbours, so edge-overhanging motifs wrap seamlessly. */
-const STAMPS = [-1, 0, 1].flatMap((ix) => [-1, 0, 1].map((iy) => [ix, iy] as const));
-
 export default function CtaPattern() {
   return (
-    <svg
+    <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 h-full w-full"
-      focusable="false"
+      className="pointer-events-none absolute inset-0 select-none overflow-hidden"
     >
-      <defs>
-        <g
-          id="cta-motif-field"
-          fill="none"
-          stroke="#7C7466"
-          strokeWidth="1.15"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
+      {/*
+        The padding is the safe margin. Motif positions are percentages of this
+        inner box and each glyph is centred on its point, so the padding absorbs
+        the half-size overhang and nothing can touch a section edge. The larger
+        bottom padding leaves breathing room before the dark footer divider.
+      */}
+      <div className="absolute inset-0 px-10 pb-16 pt-12 sm:px-16 sm:pb-20">
+        <div className="relative h-full w-full opacity-[0.18]">
           {PLACEMENTS.map((p, i) => (
-            <g
+            <svg
               key={i}
-              transform={`translate(${p.x} ${p.y}) rotate(${p.rotate}) scale(${p.scale})`}
+              viewBox="-30 -30 60 60"
+              width={p.size}
+              height={p.size}
+              fill="none"
+              stroke="#7C7466"
+              strokeWidth="1.15"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              focusable="false"
+              // Each motif is drawn in a 60-unit box but rendered at ~30-52px,
+              // so a plain stroke width would thin out as the box scales down
+              // and vary between sizes. `vector-effect` is not an inherited SVG
+              // property, so it is applied to every descendant shape to keep
+              // each glyph at a consistent, readable 1.15px.
+              className="absolute [&_*]:[vector-effect:non-scaling-stroke]"
+              style={{
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                transform: `translate(-50%, -50%) rotate(${p.rotate}deg)`,
+              }}
             >
               {MOTIFS[p.key]}
-            </g>
+            </svg>
           ))}
-        </g>
-
-        <pattern
-          id="cta-lineart"
-          width={TILE_W}
-          height={TILE_H}
-          patternUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-        >
-          <g opacity="0.15">
-            {STAMPS.map(([ix, iy]) => (
-              <use
-                key={`${ix}:${iy}`}
-                href="#cta-motif-field"
-                transform={`translate(${ix * TILE_W} ${iy * TILE_H})`}
-              />
-            ))}
-          </g>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#cta-lineart)" />
-    </svg>
+        </div>
+      </div>
+    </div>
   );
 }
