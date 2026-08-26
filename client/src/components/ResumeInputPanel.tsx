@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { extractResume } from '../lib/api';
+import { takePendingResumeFile } from '../lib/fileHandoff';
 import type { SourceType } from '../lib/types';
 
 interface Props {
@@ -33,6 +34,15 @@ export default function ResumeInputPanel({
   const [extractWarning, setExtractWarning] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Claim a resume file attached on the landing page. `takePendingResumeFile`
+  // clears the reference, so this runs at most once and reuses the same
+  // validation and extraction path as a file chosen here directly.
+  useEffect(() => {
+    const handoff = takePendingResumeFile();
+    if (handoff) void handleFile(handoff);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const usingFile = !!extractedText && !!sourceType;
   const effectiveText = usingFile ? extractedText : pastedText;
