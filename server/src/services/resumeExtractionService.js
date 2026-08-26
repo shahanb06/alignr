@@ -12,6 +12,28 @@
 const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 const mammoth = require('mammoth');
 
+// Eagerly load the pdf.js engine at startup.
+//
+// `pdf-parse/lib/pdf-parse.js` is only a thin wrapper: it lazily does
+// `require('./pdf.js/<version>/build/pdf.js')` *inside* the parse call, so the
+// first PDF upload after every boot pays the full ~6 MB module load (~100 ms
+// measured) on the user's critical path. Requiring it here puts that cost in
+// server startup instead; the lazy require inside pdf-parse then hits the
+// module cache. PDF_VERSION mirrors pdf-parse's own default.
+//
+// Wrapped in try/catch on purpose: this is a pure warm-up with no behavioral
+// role, so if the vendored path ever moves we degrade to the old lazy load
+// rather than failing to boot.
+const PDF_VERSION = 'v1.10.100';
+try {
+  require(`pdf-parse/lib/pdf.js/${PDF_VERSION}/build/pdf.js`);
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[Alignr] pdf.js warm-up skipped (${PDF_VERSION}); first PDF upload will load it lazily.`
+  );
+}
+
 const MAX_EXTRACTED_CHARS = 20000;
 
 function clean(text) {

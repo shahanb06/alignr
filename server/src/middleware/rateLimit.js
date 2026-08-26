@@ -31,4 +31,27 @@ const aiRateLimiter = rateLimit({
   },
 });
 
-module.exports = { aiRateLimiter };
+// Separate limiter for /api/extract-resume.
+//
+// Extraction makes no Anthropic call — it is purely local PDF/DOCX text parsing —
+// so it must not draw down the AI budget the way it did when it shared
+// aiRateLimiter. Uploading a resume, removing it, and uploading a corrected one
+// is normal behavior and previously burned three tailor requests.
+//
+// It still deserves *a* limit (each request parses an untrusted file), so this
+// gets its own independent counter with a more generous ceiling.
+const UPLOAD_RATE_LIMIT_PER_HOUR = Number(process.env.UPLOAD_RATE_LIMIT_PER_HOUR) || 60;
+
+const uploadRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: UPLOAD_RATE_LIMIT_PER_HOUR,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: 'Too many file uploads. Wait a few minutes and try again.',
+    });
+  },
+});
+
+module.exports = { aiRateLimiter, uploadRateLimiter };
