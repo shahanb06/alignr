@@ -170,8 +170,8 @@ type Placement = {
 const PLACEMENTS: Placement[] = (() => {
   const rand = mulberry32(20260826);
   const out: Placement[] = [];
-  const TARGET = 52;
-  const ATTEMPTS = 1400;
+  const TARGET = 76;
+  const ATTEMPTS = 6000;
   let weightL = 0;
   let weightR = 0;
 
@@ -188,7 +188,7 @@ const PLACEMENTS: Placement[] = (() => {
 
     // Varying radius: small values allow occasional tight clusters, larger ones
     // open up breathing room.
-    const minDist = 7.5 + rand() * 7;
+    const minDist = 5.6 + rand() * 5.8;
     const clears = out.every((p) => {
       const dx = p.x - x;
       const dy = (p.y - y) * 0.62; // vertical space is scarcer than horizontal
@@ -196,7 +196,9 @@ const PLACEMENTS: Placement[] = (() => {
     });
     if (!clears) continue;
 
-    const size = 30 + rand() * 22;
+    // Range 35-59px, ~12% larger on average than the previous 30-52px while
+    // keeping the same spread of per-icon size variation.
+    const size = 35.1 + rand() * 24;
 
     // Visual balance without mirroring. Ink scales with the glyph box, so the
     // running total is weighted by size; the half that is ahead draws from the
@@ -251,7 +253,7 @@ export default function CtaPattern() {
               strokeLinecap="round"
               strokeLinejoin="round"
               focusable="false"
-              // Each motif is drawn in a 60-unit box but rendered at ~30-52px,
+              // Each motif is drawn in a 60-unit box but rendered at ~34-58px,
               // so a plain stroke width would thin out as the box scales down
               // and vary between sizes. `vector-effect` is not an inherited SVG
               // property, so it is applied to every descendant shape to keep
