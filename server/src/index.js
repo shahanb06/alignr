@@ -20,7 +20,7 @@ const cors = require('cors');
 const extractResumeRoute = require('./routes/extractResume');
 const tailorResumeRoute = require('./routes/tailorResume');
 const analyzeFitRoute = require('./routes/analyzeFit');
-const { aiRateLimiter } = require('./middleware/rateLimit');
+const { aiRateLimiter, uploadRateLimiter } = require('./middleware/rateLimit');
 
 const app = express();
 
@@ -52,7 +52,10 @@ app.get('/api/health', (_req, res) => {
 // Rate-limited AI endpoints. /api/analyze is intentionally NOT rate-limited:
 // it runs unconditionally before /api/tailor and is cheap; counting it would
 // halve the user's effective tailor budget.
-app.use('/api/extract-resume', aiRateLimiter, extractResumeRoute);
+//
+// /api/extract-resume makes no AI call either (local PDF/DOCX parsing only), so
+// it gets its own independent limiter rather than sharing the tailor budget.
+app.use('/api/extract-resume', uploadRateLimiter, extractResumeRoute);
 app.use('/api/tailor', aiRateLimiter, tailorResumeRoute);
 app.use('/api/analyze', analyzeFitRoute);
 

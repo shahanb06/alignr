@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { extractResume } from '../lib/api';
+import { extractResume, warmUpBackend } from '../lib/api';
 import { takePendingResumeFile } from '../lib/fileHandoff';
 import type { SourceType } from '../lib/types';
 
@@ -40,7 +40,14 @@ export default function ResumeInputPanel({
   // validation and extraction path as a file chosen here directly.
   useEffect(() => {
     const handoff = takePendingResumeFile();
-    if (handoff) void handleFile(handoff);
+    if (handoff) {
+      // Already uploading, which wakes the backend on its own.
+      void handleFile(handoff);
+    } else {
+      // No file yet: start waking the backend now, while the user is still
+      // choosing one. Fire-and-forget and guarded to a single ping per load.
+      warmUpBackend();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -105,6 +112,13 @@ export default function ResumeInputPanel({
       <div className="flex flex-1 flex-col gap-4 p-5">
         {/* Upload zone */}
         <div
+          onDragEnter={(e) => {
+            e.preventDefault();
+            // Warm the backend as soon as a file enters the drop zone. The guard
+            // inside warmUpBackend makes repeated drag events a no-op.
+            warmUpBackend();
+            setIsDragging(true);
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             setIsDragging(true);

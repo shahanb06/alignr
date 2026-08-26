@@ -16,6 +16,26 @@ const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? ''
 if (!API_BASE && import.meta.env.PROD) {
   throw new Error('VITE_API_BASE_URL is not set. The frontend cannot reach the backend.');
 }
+// Fire-and-forget backend warm-up.
+//
+// The backend deploys separately and can be cold when the first upload lands,
+// which is the dominant source of the "Extracting…" wait — local parsing itself
+// is only milliseconds. Pinging /api/health while the user is still choosing or
+// dragging a file lets the server wake in parallel.
+//
+// Deliberately silent: no return value, no thrown errors, no UI. The module-level
+// flag means at most one ping per page load, so repeated drag events cannot spam it.
+let warmedUp = false;
+
+export function warmUpBackend(): void {
+  if (warmedUp) return;
+  warmedUp = true;
+  void fetch(`${API_BASE}/api/health`, { method: 'GET' }).catch(() => {
+    // Ignored on purpose: this is an optimization, not a dependency. If it fails
+    // the upload still works and surfaces its own error.
+  });
+}
+
 export async function extractResume(file: File): Promise<ExtractResumeResponse> {
   const fd = new FormData();
   fd.append('file', file);
