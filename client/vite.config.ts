@@ -8,11 +8,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    allowedHosts: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8787',
         changeOrigin: true,
       },
     },
+  },
+  // `vite preview` serves the production build behind the same sandbox proxy
+  // host as the dev server, so it needs the same host allowance.
+  preview: {
+    allowedHosts: true,
   },
 });

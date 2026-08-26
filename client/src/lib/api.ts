@@ -14,7 +14,7 @@ import type {
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 if (!API_BASE && import.meta.env.PROD) {
-  throw new Error('VITE_API_BASE_URL is not set — the frontend cannot reach the backend.');
+  throw new Error('VITE_API_BASE_URL is not set. The frontend cannot reach the backend.');
 }
 export async function extractResume(file: File): Promise<ExtractResumeResponse> {
   const fd = new FormData();
@@ -64,8 +64,8 @@ export async function analyzeFit(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      signal, 
-W    });
+      signal,
+    });
   } catch (err) {
     if ((err as Error).name === 'AbortError') throw err;
     throw new Error('Network error. Please check your connection and try again.');

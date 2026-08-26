@@ -20,11 +20,12 @@ export default function EmptyState() {
         </svg>
       </div>
       <div className="max-w-sm">
-        <h3 className="text-sm font-semibold tracking-[-0.01em] text-ink-900">Your tailored resume will appear here</h3>
+        <h3 className="text-sm font-semibold tracking-[-0.01em] text-ink-900">
+          Your Tailored Resume Will Appear Here
+        </h3>
         <p className="mt-1 text-sm leading-snug text-ink-500">
           Paste or upload your resume on the left, paste a job description on the right, and click{' '}
-          <span className="font-medium text-ink-700">Tailor My Resume</span>. You'll see matched
-          keywords, recruiter warnings, and a diff of every change.
+          <span className="font-medium text-ink-700">Tailor My Resume</span>.
         </p>
       </div>
     </div>

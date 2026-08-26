@@ -225,7 +225,7 @@ export default function ResultsPanel({
         <Card title="Matched keywords" subtitle="Backed by evidence in your resume">
           <MatchedKeywords items={analyzeResult.matchedKeywords} />
         </Card>
-        <Card title="Missing skills" subtitle="Listed honestly — not added to your resume">
+            <Card title="Missing skills" subtitle="Listed honestly, not added to your resume">
           <MissingKeywords items={analyzeResult.missingSkills} />
         </Card>
       </div>
@@ -304,7 +304,7 @@ export default function ResultsPanel({
               title="Rewritten bullets"
               subtitle={`${tailorResult.rewrittenBullets.length} change${
                 tailorResult.rewrittenBullets.length === 1 ? '' : 's'
-              } — each with a reason`}
+              }, each with a reason`}
             >
               <ul className="space-y-4">
                 {tailorResult.rewrittenBullets.map((b, i) => (

@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { extractResume } from '../lib/api';
+import { takePendingResumeFile } from '../lib/fileHandoff';
 import type { SourceType } from '../lib/types';
 
 interface Props {
@@ -33,6 +34,15 @@ export default function ResumeInputPanel({
   const [extractWarning, setExtractWarning] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Claim a resume file attached on the landing page. `takePendingResumeFile`
+  // clears the reference, so this runs at most once and reuses the same
+  // validation and extraction path as a file chosen here directly.
+  useEffect(() => {
+    const handoff = takePendingResumeFile();
+    if (handoff) void handleFile(handoff);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const usingFile = !!extractedText && !!sourceType;
   const effectiveText = usingFile ? extractedText : pastedText;
@@ -219,7 +229,7 @@ export default function ResumeInputPanel({
             placeholder={
               usingFile
                 ? ''
-                : 'Paste your resume text here. Plain text is fine — section headers, bullets, and skills lines all work.'
+                : 'Paste your resume text here. Plain text is fine. Section headers, bullets, and skills lines all work.'
             }
             className="thin-scroll flex-1 min-h-[260px] resize-none rounded-lg border border-ink-200 bg-white p-3 font-mono text-[12.5px] leading-relaxed text-ink-900 outline-none transition placeholder:text-ink-400 focus:border-ink-400 disabled:opacity-60"
           />
