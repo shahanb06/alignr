@@ -6,7 +6,7 @@ const FAQS = [
     a: 'No. Alignr only rewrites what your resume already supports. It never adds employers, skills, projects, credentials, or metrics that are not already there.',
   },
   {
-    q: 'What happens to skills I am missing?',
+    q: "What happens to skills I'm missing?",
     a: 'Missing skills are listed honestly and kept separate from your resume. You see the gap clearly instead of having it papered over with fabricated claims.',
   },
   {
@@ -70,7 +70,7 @@ export default function Faq() {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div>
           <h2 className="text-balance text-3xl font-semibold tracking-[-0.02em] text-charcoal sm:text-4xl">
-            Frequently asked questions
+            Frequently Asked Questions
           </h2>
           <p className="mt-4 max-w-sm text-base leading-relaxed text-charcoal/60">
             Straight answers about how Alignr stays true to your experience.

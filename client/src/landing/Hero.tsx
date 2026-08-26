@@ -153,8 +153,10 @@ export default function Hero() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
+                  // Native title only: no custom or always-visible label element.
+                  // The accessible name comes from the sr-only span below, so
+                  // there is no aria-label duplicating the tooltip text.
                   title="Attach your resume"
-                  aria-label="Attach your resume"
                   className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-charcoal opacity-70 transition hover:bg-[#F1EFE9] hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-charcoal/30"
                 >
                   <svg
@@ -170,6 +172,7 @@ export default function Hero() {
                   >
                     <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
                   </svg>
+                  <span className="sr-only">Attach your resume</span>
                 </button>
                 <input
                   ref={fileInputRef}

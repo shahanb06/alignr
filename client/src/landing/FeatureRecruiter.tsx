@@ -3,15 +3,15 @@ import { CARD_LIFT, sectionRevealClass, useInViewOnce } from './motion';
 
 const WARNINGS = [
   {
-    title: 'Reordered sections',
+    title: 'Reordered Sections',
     body: 'When roles are resequenced for relevance, Alignr notes it in case strict chronology is expected.',
   },
   {
-    title: 'Unsupported claims',
+    title: 'Unsupported Claims',
     body: 'Requirements with no backing evidence in your resume are surfaced, never quietly written in.',
   },
   {
-    title: 'Gaps worth addressing',
+    title: 'Gaps Worth Addressing',
     body: 'Skills a role expects but your resume does not show, so you can prepare rather than be caught out.',
   },
 ];
@@ -55,7 +55,7 @@ export default function FeatureRecruiter() {
         </div>
         <div className="order-1 lg:order-2">
           <h2 className="text-balance text-3xl font-semibold tracking-[-0.02em] text-charcoal sm:text-4xl">
-            What a recruiter might flag
+            What A Recruiter Might Flag
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-charcoal/60">
             Alignr reviews the tailored result the way a real recruiter would, then hands the

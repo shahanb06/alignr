@@ -12,7 +12,7 @@ function ChangeRecordCard() {
           Change record
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-positive-soft px-2.5 py-1 text-xs font-medium text-positive-ink">
-          Grounded in your resume
+          Grounded In Your Resume
         </span>
       </div>
 
@@ -63,7 +63,7 @@ export default function FeatureReason() {
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
           <h2 className="text-balance text-3xl font-semibold tracking-[-0.02em] text-charcoal sm:text-4xl">
-            A reason for every change
+            A Reason For Every Change
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-charcoal/60">
             Every rewrite is transparent, so you always know what changed and why before you send
