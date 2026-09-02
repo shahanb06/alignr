@@ -21,12 +21,30 @@ function Card({
   subtitle,
   action,
   children,
+  collapsible,
+  defaultOpen,
 }: {
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
   children: React.ReactNode;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }) {
+  if (collapsible) {
+    return (
+      <details className="rounded-xl border border-ink-200 bg-white shadow-card group" open={defaultOpen}>
+        <summary className="flex items-start justify-between gap-3 border-b border-ink-200 px-5 py-3.5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold tracking-[-0.01em] text-ink-900">{title}</h3>
+            {subtitle && <p className="mt-0.5 text-xs text-ink-500">{subtitle}</p>}
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-ink-400 transition-transform group-open:rotate-180" aria-hidden><polyline points="6 9 12 15 18 9" /></svg>
+        </summary>
+        <div className="p-5">{children}</div>
+      </details>
+    );
+  }
   return (
     <section className="rounded-xl border border-ink-200 bg-white shadow-card">
       <header className="flex items-start justify-between gap-3 border-b border-ink-200 px-5 py-3.5">
@@ -275,7 +293,7 @@ export default function ResultsPanel({
       {tailorResult && tab === 'overview' && (
         <>
           {tailorResult.recruiterWarnings.length > 0 && (
-            <Card title="Recruiter warnings" subtitle="What a real recruiter might flag">
+            <Card title={`Recruiter warnings \u00b7 ${tailorResult.recruiterWarnings.length}`} subtitle="What a real recruiter might flag" collapsible defaultOpen>
               <ul className="space-y-3">
                 {tailorResult.recruiterWarnings.map((w, i) => (
                   <li key={i} className="rounded-md border border-amber-200 bg-amber-50 p-3">
@@ -337,7 +355,7 @@ export default function ResultsPanel({
           )}
 
           {tailorResult.changesExplained.length > 0 && (
-            <Card title="Changes explained" subtitle="Section-level summary of what was edited">
+            <Card title={`Changes explained \u00b7 ${tailorResult.changesExplained.length}`} subtitle="Section-level summary of what was edited" collapsible>
               <ul className="divide-y divide-ink-200">
                 {tailorResult.changesExplained.map((c, i) => (
                   <li key={i} className="grid grid-cols-1 gap-2 py-3 md:grid-cols-[160px_1fr]">
