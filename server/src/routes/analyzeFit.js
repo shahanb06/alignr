@@ -1,13 +1,19 @@
 // POST /api/analyze
 //
 // Style-blind keyword extraction + match-score computation for a (resume, JD)
-// pair. Returns plain JSON (no SSE). Not rate-limited — analysis is cheap and
-// pre-empting the tailor call should not eat a user's hourly quota.
+// pair. Returns plain JSON (no SSE). Not rate-limited by the hourly limiter —
+// analysis is cheap and pre-empting the tailor call should not eat a user's
+// hourly tailor budget (see rateLimit.js).
+//
+// It IS covered by a daily quota (see middleware/dailyQuota.js), checked only
+// on a cache MISS. A cache HIT costs nothing and must never consume quota —
+// re-checking the same (resume, JD) pair is normal, expected usage.
 
 const express = require('express');
 const { validateTailorRequest } = require('../utils/validateInput');
 const { analyzeJobFit } = require('../services/analyzeService');
 const analyzeCache = require('../utils/analyzeCache');
+const { consumeQuota, refundQuota, quotaExceededResponse } = require('../middleware/dailyQuota');
 
 const router = express.Router();
 
@@ -29,10 +35,27 @@ router.post('/', async (req, res) => {
       return res.json(analyzeCache.get(key));
     }
 
+    // Cache miss means a real Anthropic call is about to happen — this is the
+    // point quota gets checked, not before.
+    const quota = await consumeQuota(req, 'analyze');
+    if (!quota.allowed) {
+      // eslint-disable-next-line no-console
+      console.log(`[analyze] quota exceeded, resetsAt=${quota.resetsAt}`);
+      return quotaExceededResponse(res, 'analyze', quota.resetsAt);
+    }
+
     // eslint-disable-next-line no-console
     console.log(`[analyze] cache MISS key=${key.slice(0, 12)}…, calling model`);
 
-    const result = await analyzeJobFit(resumeText, jobDescription);
+    let result;
+    try {
+      result = await analyzeJobFit(resumeText, jobDescription);
+    } catch (modelErr) {
+      // The call failed before producing anything usable — refund the slot.
+      await refundQuota(req, 'analyze');
+      throw modelErr;
+    }
+
     analyzeCache.set(key, result);
     return res.json(result);
   } catch (err) {

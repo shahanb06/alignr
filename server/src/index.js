@@ -21,8 +21,10 @@ const extractResumeRoute = require('./routes/extractResume');
 const tailorResumeRoute = require('./routes/tailorResume');
 const analyzeFitRoute = require('./routes/analyzeFit');
 const { aiRateLimiter, uploadRateLimiter } = require('./middleware/rateLimit');
+const quotaRoute = require('./routes/quota');
 
 const app = express();
+app.set('trust proxy', 1);
 
 const PORT = Number(process.env.PORT) || 8787;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
@@ -58,6 +60,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/extract-resume', uploadRateLimiter, extractResumeRoute);
 app.use('/api/tailor', aiRateLimiter, tailorResumeRoute);
 app.use('/api/analyze', analyzeFitRoute);
+app.use('/api/quota', quotaRoute);
 
 // Centralized error handler. Never leak stack traces.
 // eslint-disable-next-line no-unused-vars

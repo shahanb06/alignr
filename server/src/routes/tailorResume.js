@@ -12,6 +12,19 @@
 // requirements…", "Rewriting supported resume content…", etc.) and `done` to
 // render the final structured output. `chunk` is forwarded for future use
 // (e.g., a streaming raw-output debug view) but the UI does not depend on it.
+//
+// Daily quota (middleware/dailyQuota.js) is checked and consumed HERE, after
+// validation but BEFORE any SSE header is set. This is deliberate: once
+// Content-Type is set to text/event-stream, a 429 can no longer be a plain
+// JSON response — it would have to be an SSE `error` event instead, which
+// the client handles on a different code path than a real HTTP 429. Placing
+// the check in this exact gap keeps quota-exhausted responses as ordinary
+// JSON 429s, indistinguishable in shape from /api/analyze's.
+//
+// If the quota slot is consumed but the model call then fails (thrown error,
+// or a JSON parse failure after generation completes), the slot is refunded
+// — the user got nothing usable and it should not cost them one of their
+// three tailorings. A successful `done` event is not refunded.
 
 const express = require('express');
 const { validateTailorRequest } = require('../utils/validateInput');
@@ -19,6 +32,7 @@ const { safeJsonParse } = require('../utils/safeJsonParse');
 const { streamTailoredResume } = require('../services/anthropicService');
 const { analyzeJobFit } = require('../services/analyzeService');
 const analyzeCache = require('../utils/analyzeCache');
+const { consumeQuota, refundQuota, quotaExceededResponse } = require('../middleware/dailyQuota');
 
 const router = express.Router();
 
@@ -32,12 +46,24 @@ router.post('/', async (req, res) => {
   const progressTimers = [];
   let clientDisconnected = false;
   let headersSent = false;
+  let quotaConsumed = false;
 
   try {
     const validation = validateTailorRequest(req.body);
     if (!validation.ok) {
       return res.status(400).json({ error: validation.error });
     }
+
+    // Quota check — must happen here, before any SSE header is set (see
+    // file header comment for why). A 429 at this point is a normal JSON
+    // response, same shape as /api/analyze's.
+    const quota = await consumeQuota(req, 'tailor');
+    if (!quota.allowed) {
+      // eslint-disable-next-line no-console
+      console.log(`[tailor] quota exceeded, resetsAt=${quota.resetsAt}`);
+      return quotaExceededResponse(res, 'tailor', quota.resetsAt);
+    }
+    quotaConsumed = true;
 
     // SSE headers. Disable proxy buffering hints so streaming works behind common reverse proxies.
     res.setHeader('Content-Type', 'text/event-stream');
@@ -132,6 +158,11 @@ router.post('/', async (req, res) => {
       console.error(`[tailor] JSON parse FAILED, raw output first 500 chars: ${raw.slice(0, 500)}`);
       // eslint-disable-next-line no-console
       console.error(`[tailor] JSON parse FAILED, raw output last 500 chars: ${raw.slice(-500)}`);
+      // Model ran, tokens were spent, output was unusable — refund.
+      if (quotaConsumed) {
+        await refundQuota(req, 'tailor');
+        quotaConsumed = false;
+      }
       writeSseEvent(res, 'error', {
         error: 'parse_failed',
         message:
@@ -196,6 +227,13 @@ router.post('/', async (req, res) => {
     const stack = err && err.stack ? err.stack : '(no stack)';
     // eslint-disable-next-line no-console
     console.error(`[tailor] ROUTE ERROR: name=${name} message=${message}\n${stack}`);
+
+    // The call threw before producing a usable result — refund if a slot
+    // was consumed and not already refunded on the parse-failure path above.
+    if (quotaConsumed) {
+      await refundQuota(req, 'tailor');
+      quotaConsumed = false;
+    }
 
     if (!clientDisconnected) {
       if (headersSent) {
