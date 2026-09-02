@@ -51,3 +51,9 @@ body {
   font-size: 12.5px !important;
   line-height: 1.55 !important;
 }
+
+@keyframes alignr-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

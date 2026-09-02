@@ -60,6 +60,7 @@ export interface TailorStreamCallbacks {
   onChunk?: (text: string) => void;
   onDone: (result: TailorResult) => void;
   onError: (message: string) => void;
+  onQuotaExceeded?: (info: { scope: string; resetsAt: string | null }) => void;
 }
 
 export interface TailorRequest {
@@ -145,6 +146,10 @@ export async function tailorResume(
   if (!res.ok) {
     // For 4xx errors the server replies with JSON, not SSE.
     const data = await res.json().catch(() => null);
+    if (data?.code === 'daily_limit_reached' && cb.onQuotaExceeded) {
+      cb.onQuotaExceeded({ scope: data.scope, resetsAt: data.resetsAt });
+      return;
+    }
     cb.onError(data?.error || 'Request failed.');
     return;
   }
@@ -196,5 +201,20 @@ export async function tailorResume(
     if (!receivedTerminal) {
       cb.onError('Stream interrupted. Please try again.');
     }
+  }
+}
+
+export interface QuotaStatus {
+  tailor: { remaining: number; limit: number; resetsAt: string | null };
+  analyze: { remaining: number; limit: number; resetsAt: string | null };
+}
+
+export async function getQuota(): Promise<QuotaStatus | null> {
+  try {
+    const res = await fetch(API_BASE + '/api/quota');
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
   }
 }

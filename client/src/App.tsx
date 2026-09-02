@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { analyzeFit, tailorResume } from './lib/api';
+import { analyzeFit, getQuota, tailorResume } from './lib/api';
 import type { AnalyzeResult, RewriteStyle, SourceType, TailorResult } from './lib/types';
 import EmptyState from './components/EmptyState';
 import JobDescriptionPanel from './components/JobDescriptionPanel';
 import LoadingState from './components/LoadingState';
 import ResultsPanel from './components/ResultsPanel';
+import QuotaExceededState from './components/QuotaExceededState';
 import ResumeInputPanel from './components/ResumeInputPanel';
 
 const MIN_RESUME_CHARS = 200;
@@ -41,6 +42,8 @@ export default function App() {
   const [tailorResult, setTailorResult] = useState<TailorResult | null>(null);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [tailorError, setTailorError] = useState<string | null>(null);
+  const [quotaExceeded, setQuotaExceeded] = useState<{ scope: 'tailor' | 'analyze'; resetsAt: string | null } | null>(null);
+  const [tailorRemaining, setTailorRemaining] = useState<number | null>(null);
   const [progressLabel, setProgressLabel] = useState('Starting…');
   const [progressHistory, setProgressHistory] = useState<string[]>([]);
   const abortRef = useRef<AbortController | null>(null);
@@ -106,6 +109,7 @@ export default function App() {
     setTailorResult(null);
     setAnalyzeError(null);
     setTailorError(null);
+    setQuotaExceeded(null);
     setIsAnalyzing(false);
     setIsTailoring(false);
     setProgressLabel('Starting…');
@@ -224,9 +228,15 @@ export default function App() {
             // ignore
           }
           setHasSavedRun(false);
+          getQuota().then(q => { if (q) setTailorRemaining(q.tailor.remaining); });
         },
         onError: (msg) => {
           setTailorError(msg);
+          setIsTailoring(false);
+        },
+        onQuotaExceeded: (info) => {
+          setQuotaExceeded({ scope: info.scope as 'tailor' | 'analyze', resetsAt: info.resetsAt });
+          setTailorRemaining(0);
           setIsTailoring(false);
         },
       },
@@ -339,6 +349,11 @@ export default function App() {
                 </>
               )}
             </button>
+            {tailorRemaining !== null && tailorRemaining < 3 && (
+              <span className="text-[11px] text-ink-500">
+                {tailorRemaining} of 3 left today
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -479,7 +494,11 @@ export default function App() {
             />
           )}
 
-          {!isBusy && !analyzeError && !analyzeResult && <EmptyState />}
+          {quotaExceeded && !analyzeResult && (
+            <QuotaExceededState scope={quotaExceeded.scope} resetsAt={quotaExceeded.resetsAt} />
+          )}
+
+          {!isBusy && !analyzeError && !analyzeResult && !quotaExceeded && <EmptyState />}
         </section>
 
         <div className="mt-12 border-t border-ink-200 pt-6">
