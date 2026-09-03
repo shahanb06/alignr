@@ -26,3 +26,8 @@ yarn-error.log*
 # Backup files
 *.backup
 *.backup-*/
+
+# Build artifacts that shouldn't be tracked
+client/tsconfig.tsbuildinfo
+client/tsconfig.node.tsbuildinfo
+client/pnpm-workspace.yaml
