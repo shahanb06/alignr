@@ -69,6 +69,16 @@ export default function App() {
     }
   }, []);
 
+  // Fetch the daily tailor quota once on mount so the "N of 3 left today"
+  // counter reflects prior usage immediately, without waiting for a tailor
+  // run to complete this session. Without this the counter stayed null on
+  // load and never rendered even when quota had been used.
+  useEffect(() => {
+    getQuota().then((q) => {
+      if (q) setTailorRemaining(q.tailor.remaining);
+    });
+  }, []);
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LAST_RUN_KEY);
