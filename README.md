@@ -6,14 +6,6 @@ An honest AI resume-tailoring tool. Paste a resume and a job description, and Al
 
 > **Live demo — rate-limited, please be patient.** The hosted version runs on a single shared API key. If you hit the limit, clone the repo and run locally with your own Anthropic API key.
 
-<!--
-Add a screenshot to make this README land harder. Drop an image at docs/screenshot.png
-(a capture of the results view — match score, diff, recruiter warnings — works best),
-then uncomment the line below:
-
-![Alignr](docs/screenshot.png)
--->
-
 ---
 
 ## The problem
@@ -61,17 +53,19 @@ resume-fit-ai/
       App.tsx      single-page three-zone layout
   server/          Express 4 + Anthropic SDK + multer + pdf-parse + mammoth
     src/
-      routes/      /api/extract-resume, /api/tailor
-      services/    anthropicService (system prompt lives here), resumeExtractionService
-      middleware/  rateLimit, upload
-      utils/       validateInput, safeJsonParse
+      routes/      /api/extract-resume, /api/tailor, /api/analyze, /api/quota
+      services/    anthropicService, analyzeService, resumeExtractionService, synonymMap
+      middleware/  rateLimit, dailyQuota
+      utils/       validateInput, safeJsonParse, analyzeCache
 ```
 
 ### Request flow
 
-1. **Resume upload (optional):** `POST /api/extract-resume` → multer in-memory → `pdf-parse` or `mammoth` or plain UTF-8 → cleaned text → returned to client. The buffer never touches disk.
-2. **Tailor:** `POST /api/tailor` with `{ resumeText, jobDescription, targetRole, rewriteStyle }`. The server validates inputs, calls Claude with a long anti-fabrication system prompt, and streams the response back as Server-Sent Events.
-3. **Streaming:** the server emits `progress` events for the UI's status pill, forwards `chunk` text deltas, and finishes with a `done` event containing the parsed structured JSON.
+1. **Resume upload (optional):** `POST /api/extract-resume` → multer in-memory → `pdf-parse` (with vision fallback for multi-column layouts) or `mammoth` or plain UTF-8 → cleaned text → returned to client. The buffer never touches disk.
+2. **Analyze:** `POST /api/analyze` with `{ resumeText, jobDescription }`. Weighted keyword extraction and match-score computation via Claude Haiku, with skill-synonym awareness. Cache-backed; repeated calls for the same pair are free. Daily quota: 10/visitor.
+3. **Tailor:** `POST /api/tailor` with `{ resumeText, jobDescription, targetRole, rewriteStyle }`. Daily quota checked pre-stream (plain JSON 429, never mid-SSE). Calls Claude Sonnet with the anti-fabrication system prompt, streams via SSE. Post-generation quality gate catches generic summaries. Daily quota: 3/visitor, refunded on failure.
+4. **Streaming:** the server emits `progress` events for the UI's status pill, forwards `chunk` text deltas, and finishes with a `done` event containing the parsed structured JSON.
+5. **Quota status:** `GET /api/quota` returns remaining counts and reset times for both scopes. Read-only, no side effects.
 
 ## AI safety constraints
 
@@ -93,7 +87,7 @@ The model returns **strict JSON only** — no markdown, no preamble, no chain-of
 
 | Format | Library | Notes |
 |--------|---------|-------|
-| `.pdf` | `pdf-parse` | Imported via its internal entry to avoid the package's debug-mode footgun |
+| `.pdf` | `pdf-parse` + Claude vision fallback | Imported via its internal entry; falls back to Claude Haiku document extraction when pdf-parse output looks scrambled (multi-column/sidebar layouts) |
 | `.docx` | `mammoth` | Raw text extraction; styling is dropped |
 | `.txt` | built-in | UTF-8, normalized line endings |
 
@@ -121,9 +115,9 @@ A `:ping` comment heartbeat is emitted every 15 s to keep long generations alive
 - **API key stays on the server.** Read once from `process.env.ANTHROPIC_API_KEY`, used only inside `anthropicService.js`. Never returned in any response, never logged.
 - **No request-body logging.** Resumes and JDs are private — we log only error categories, never user content.
 - **No stack traces leave the server.** A central error handler in `index.js` normalizes everything to a clean message.
-- **Per-IP rate limit** on both AI endpoints (`express-rate-limit`). When exceeded, the user sees:
-  > "Demo rate limit reached. Try again in an hour, or clone the repo to run locally with your own API key."
-- **Input validation** before any model call: minimum/maximum lengths on resume and JD, allowlist on `rewriteStyle`.
+- **Per-IP hourly rate limit** on AI endpoints (`express-rate-limit`, 25/hour). Burst protection.
+- **Daily quota** backed by Supabase Postgres: 3 tailorings, 10 analyses per visitor per day (rolling 24h). Extract is exempt. Reserve-on-request, refund-on-failure via atomic Postgres functions. Quota status available at `GET /api/quota`.
+- **Input validation** before any model call: minimum/maximum lengths, allowlist on `rewriteStyle`, plus content-quality heuristics (alpha ratio, word count, resume-header detection, JD signal-word check) to reject garbage before it reaches the model.
 - **File upload allowlist** on both MIME type and extension.
 - **In-memory file handling only** — no temp files, no path-traversal surface.
 - **CORS** locked to the configured `CLIENT_ORIGIN`.
@@ -198,11 +192,10 @@ The "AI" is a careful editor, not a generator. The rest of the system is enginee
 
 ## Future improvements
 
-- **Image / scanned-resume upload** via Claude's vision capabilities, so a photo or image-only PDF can be parsed.
 - **Export to PDF** with a clean default template (currently the tailored resume is plain text by design).
 - **LinkedIn job URL parsing** — paste a job link, fetch the description server-side.
+- **Constrained per-bullet edit actions** — "shorten", "lead with the metric", "match the JD phrasing" — each producing a diff and reason, without opening a free-text chat surface.
 - **Saved tailoring history** behind optional auth, so a user can revisit and compare runs.
-- **User accounts** with per-user rate limits and saved resumes.
 
 ## License
 
