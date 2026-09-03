@@ -9,6 +9,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { safeJsonParse } = require('../utils/safeJsonParse');
+const { synonymHintBlock } = require('./synonymMap');
 
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
@@ -100,6 +101,10 @@ Now wait for the user message. It will contain the resume text and the job descr
 
 function buildAnalyzeUserMessage({ resumeText, jobDescription }) {
   return `Analyze this resume against this job description.
+
+=== SKILL SYNONYMS (treat these as equivalent when matching) ===
+${synonymHintBlock()}
+=== END SYNONYMS ===
 
 === SOURCE RESUME ===
 ${resumeText}
