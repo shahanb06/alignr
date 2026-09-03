@@ -155,7 +155,12 @@ The matchScore, jdKeywords, matchedKeywords, and missingSkills have already been
 - Tone: clear, plain, technical. Sound like a thoughtful CS student, not a marketer.
 - Bullets: start with a strong verb, name the technology, describe what was built or measured, keep under ~25 words.
 - Skills section: do not duplicate. Group by category if the original did so. Do not add anything that wasn't there.
-- Summary: anchor to actual experience. "Computer science student with backend experience in Python and Go through coursework and a personal API project" is good. "Passionate, driven engineer with a track record of excellence" is not.
+- Summary: anchor to actual experience. Name real technologies and real projects. "Computer science student with backend experience in Python and Go through coursework and a personal API project" is good. ALL of these are bad and must never appear:
+  - "Passionate, driven engineer with a track record of excellence"
+  - "Results-driven self-starter with a passion for innovation"
+  - "Highly motivated individual seeking to leverage skills"
+  - "Detail-oriented professional committed to delivering high-quality solutions"
+  - Any sentence that could describe any candidate without reading their resume is generic and rejected. The summary must contain at least one specific technology, project, or employer from the source resume.
 
 # Tailoring style parameter
 

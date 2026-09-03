@@ -172,7 +172,34 @@ router.post('/', async (req, res) => {
     }
 
     // eslint-disable-next-line no-console
-    console.log('[tailor] JSON parse OK, sending result event');
+    console.log('[tailor] JSON parse OK, checking summary quality...');
+
+    // Post-generation quality gate: catch generic professional summaries.
+    // These phrases are never anchored in real experience and signal the
+    // model ignored the prompt's negative examples.
+    if (parsed.value.professionalSummary) {
+      const summary = parsed.value.professionalSummary.toLowerCase();
+      const GENERIC_PHRASES = [
+        'results-driven', 'self-starter', 'passionate about', 'highly motivated',
+        'detail-oriented professional', 'track record of excellence', 'leverag',
+        'committed to delivering', 'seeking to', 'eager to', 'proven ability',
+        'dynamic individual', 'go-getter', 'team player with',
+      ];
+      const isGeneric = GENERIC_PHRASES.some(p => summary.includes(p));
+      if (isGeneric) {
+        // eslint-disable-next-line no-console
+        console.warn('[tailor] WARN: generic summary detected, clearing it');
+        parsed.value.professionalSummary = '';
+        if (!parsed.value.recruiterWarnings) parsed.value.recruiterWarnings = [];
+        parsed.value.recruiterWarnings.push({
+          issue: 'The generated professional summary was too generic and was removed.',
+          suggestion: 'Consider writing a summary yourself that names your specific technologies, projects, and the role you held.',
+        });
+      }
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('[tailor] sending result event');
 
     // Defense-in-depth: the prompt forbids score/keyword fields in tailor output,
     // but the model has been known to override MUST NOT directives. Strip silently
