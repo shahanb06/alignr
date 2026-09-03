@@ -67,9 +67,9 @@ export default function Hero() {
   // Only the section's top padding is reduced below; the internal rhythm of
   // the wordmark, headline, subtext, and paste box is left untouched.
   return (
-    <section id="top" className="relative mx-auto max-w-6xl px-5 pt-8 pb-10 sm:px-8 sm:pt-12">
+    <section id="top" className="relative mx-auto max-w-6xl px-5 pt-4 pb-6 sm:px-8 sm:pt-12 sm:pb-10">
       <HeroPaper3D />
-      <div className="relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className="relative z-10 grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-16">
         {/* Left: pill + giant floating wordmark */}
         <div>
           <motion.span
@@ -83,7 +83,7 @@ export default function Hero() {
             {...entranceProps(1, reduced)}
             className="mt-6 font-semibold leading-[0.9] tracking-[-0.04em] text-charcoal"
             style={{
-              fontSize: 'clamp(4.5rem, 18vw, 12rem)',
+              fontSize: 'clamp(3.2rem, 15vw, 12rem)',
               // Thin warm-grey outline so the letterforms keep a crisp edge
               // against both the cream page and the 3D cards behind them.
               // `paint-order: stroke` draws the stroke beneath the fill so the
@@ -133,7 +133,7 @@ export default function Hero() {
               const dropped = e.dataTransfer.files?.[0];
               if (dropped) acceptFile(dropped);
             }}
-            className={`mt-8 rounded-xl border bg-white transition-colors ${
+            className={`mt-5 sm:mt-8 rounded-xl border bg-white transition-colors ${
               isDragging
                 ? 'border-dashed border-charcoal bg-[#F4F2EC]'
                 : hasContent
