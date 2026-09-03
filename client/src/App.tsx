@@ -360,8 +360,11 @@ export default function App() {
 
       <main className="mx-auto max-w-[1400px] px-6 py-6">
         {hasSavedRun && (
-          <div className="mb-4 flex items-center justify-between rounded-xl border border-ink-200 bg-white px-4 py-2 text-sm">
-            <span className="text-ink-700">Restore your last tailored run?</span>
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-ink-200 bg-ink-50 px-4 py-2.5 text-sm">
+            <span className="flex items-center gap-2 text-ink-700">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink-400" aria-hidden><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+              Restore your last tailored run?
+            </span>
             <span className="flex items-center gap-2 text-ink-500">
               <button
                 type="button"
