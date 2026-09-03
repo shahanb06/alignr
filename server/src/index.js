@@ -24,7 +24,7 @@ const { aiRateLimiter, uploadRateLimiter } = require('./middleware/rateLimit');
 const quotaRoute = require('./routes/quota');
 
 const app = express();
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 const PORT = Number(process.env.PORT) || 8787;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
