@@ -11,6 +11,97 @@
 
 const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 const mammoth = require('mammoth');
+const Anthropic = require('@anthropic-ai/sdk');
+
+const visionClient = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+// ---------------------------------------------------------------------------
+// Scramble detection heuristic — item 23.
+//
+// pdf-parse reads left-to-right, line-by-line. On two-column or sidebar
+// resumes, this merges columns into single lines, producing output like:
+//   "John Doe Education"
+//   "Experience 2018-2022 Skills"
+//
+// Detection: count lines where two or more resume section headers appear
+// on the same line. In a well-parsed resume, each header sits on its own
+// line. Multiple headers per line is the signature of column-merge.
+// ---------------------------------------------------------------------------
+
+const SECTION_HEADERS = /\b(education|experience|skills|projects|work history|employment|summary|objective|certifications?|awards?|interests|activities|publications?|technical skills|relevant experience|professional experience)\b/gi;
+
+function looksScrambled(text) {
+  const lines = text.split('\n');
+  let multiHeaderLines = 0;
+  let veryShortLines = 0;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Count section headers on this line
+    const headers = trimmed.match(SECTION_HEADERS);
+    if (headers && headers.length >= 2) {
+      multiHeaderLines++;
+    }
+
+    // Count lines with 1-2 words (column fragments)
+    const words = trimmed.split(/\s+/).filter(Boolean);
+    if (words.length <= 2 && words.length > 0) {
+      veryShortLines++;
+    }
+  }
+
+  const nonEmptyLines = lines.filter(l => l.trim()).length;
+  const shortRatio = nonEmptyLines > 0 ? veryShortLines / nonEmptyLines : 0;
+
+  // Trigger if 2+ lines have merged headers, or >40% of lines are fragments
+  return multiHeaderLines >= 2 || shortRatio > 0.4;
+}
+
+// ---------------------------------------------------------------------------
+// Vision fallback — send the raw PDF to Claude as a document.
+// ---------------------------------------------------------------------------
+
+async function extractWithVision(pdfBuffer) {
+  const base64 = pdfBuffer.toString('base64');
+
+  // eslint-disable-next-line no-console
+  console.log('[extract] pdf-parse output looks scrambled, falling back to vision extraction');
+
+  const response = await visionClient.messages.create({
+    model: 'claude-haiku-3-5-20241022',
+    max_tokens: 4096,
+    messages: [{
+      role: 'user',
+      content: [
+        {
+          type: 'document',
+          source: {
+            type: 'base64',
+            media_type: 'application/pdf',
+            data: base64,
+          },
+        },
+        {
+          type: 'text',
+          text: 'Extract all text from this resume PDF. Preserve the original section structure (Education, Experience, Skills, Projects, etc.), bullet points, dates, and formatting hierarchy. Output plain text only, no markdown. Do not summarize or rephrase — extract verbatim.',
+        },
+      ],
+    }],
+  });
+
+  const text = Array.isArray(response.content)
+    ? response.content
+        .filter(b => b && b.type === 'text' && typeof b.text === 'string')
+        .map(b => b.text)
+        .join('')
+    : '';
+
+  return text;
+}
 
 // Eagerly load the pdf.js engine at startup.
 //
@@ -69,7 +160,31 @@ async function extractFromPdf(buffer) {
     wrapped.originalMessage = err && err.message ? err.message : 'unknown';
     throw wrapped;
   }
-  return clean(result.text || '');
+
+  const parsed = clean(result.text || '');
+
+  // If pdf-parse produced text but it looks scrambled (multi-column merge),
+  // fall back to Claude vision extraction. If vision also fails, return the
+  // scrambled text rather than blocking entirely — something is better than
+  // nothing, and the paste-text path remains the safety net.
+  if (parsed.length >= 50 && looksScrambled(parsed)) {
+    try {
+      const visionText = await extractWithVision(buffer);
+      const cleaned = clean(visionText);
+      if (cleaned.length >= 50) {
+        // eslint-disable-next-line no-console
+        console.log('[extract] vision fallback succeeded, using vision text');
+        return cleaned;
+      }
+      // eslint-disable-next-line no-console
+      console.warn('[extract] vision fallback returned too little text, using pdf-parse output');
+    } catch (visionErr) {
+      // eslint-disable-next-line no-console
+      console.error('[extract] vision fallback failed, using pdf-parse output:', visionErr.message);
+    }
+  }
+
+  return parsed;
 }
 
 async function extractFromDocx(buffer) {
