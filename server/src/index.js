@@ -24,7 +24,13 @@ const { aiRateLimiter, uploadRateLimiter } = require('./middleware/rateLimit');
 const quotaRoute = require('./routes/quota');
 
 const app = express();
-app.set('trust proxy', true);
+// Render fronts this app with exactly two proxy hops (Cloudflare edge +
+// Render's internal router), verified from the live X-Forwarded-For chain:
+// "<client>, <cloudflare>, <render-internal>". Trusting exactly 2 makes
+// Express resolve req.ip to the real client while ignoring any spoofed
+// X-Forwarded-For entries a caller prepends. `true` (trust all) is both
+// spoofable and rejected by express-rate-limit (ERR_ERL_PERMISSIVE_TRUST_PROXY).
+app.set('trust proxy', 2);
 
 const PORT = Number(process.env.PORT) || 8787;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';

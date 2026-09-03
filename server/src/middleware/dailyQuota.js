@@ -47,20 +47,10 @@ const supabase = createClient(
 // Same identity source the hourly limiter relies on via `trust proxy`.
 // Express resolves req.ip correctly now that trust proxy is set in index.js.
 function clientKeyFrom(req) {
-  // TEMP DIAGNOSTIC (remove after hop-count determination): log the full
-  // forwarded chain so we can set `trust proxy` to the exact number of Render
-  // proxy hops instead of `true` (which trusts a spoofable left-most XFF).
-  // eslint-disable-next-line no-console
-  console.log(`[quota-diag] xff=${JSON.stringify(req.headers['x-forwarded-for'])} reqIp=${req.ip} remoteAddr=${req.socket && req.socket.remoteAddress}`);
-
-  // Render places more than one proxy hop in front of this process, so req.ip
-  // (even with trust proxy set) can resolve to a rotating internal 10.x
-  // address. The real client is the left-most entry of X-Forwarded-For.
-  const xff = req.headers['x-forwarded-for'];
-  if (typeof xff === 'string' && xff.length > 0) {
-    const first = xff.split(',')[0].trim();
-    if (first) return first;
-  }
+  // With `trust proxy` set to the exact hop count (2) in index.js, Express
+  // resolves req.ip to the real client IP and ignores spoofed X-Forwarded-For
+  // entries. Read req.ip directly rather than trusting the raw header, which
+  // is what made the value spoofable.
   return req.ip || 'unknown';
 }
 
