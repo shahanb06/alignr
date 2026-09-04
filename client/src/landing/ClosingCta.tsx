@@ -17,6 +17,10 @@ export default function ClosingCta() {
           <div className="mt-9 flex justify-center">
             <CtaButton size="lg">Tailor My Resume</CtaButton>
           </div>
+          <p className="mx-auto mt-6 max-w-md text-sm leading-relaxed text-charcoal/45">
+            New, and honest about it. No inflated numbers or borrowed logos, paste your real
+            resume and judge the output yourself.
+          </p>
         </div>
       </div>
     </section>
