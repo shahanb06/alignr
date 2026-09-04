@@ -47,10 +47,16 @@ const supabase = createClient(
 // Same identity source the hourly limiter relies on via `trust proxy`.
 // Express resolves req.ip correctly now that trust proxy is set in index.js.
 function clientKeyFrom(req) {
-  // With `trust proxy` set to the exact hop count (2) in index.js, Express
-  // resolves req.ip to the real client IP and ignores spoofed X-Forwarded-For
-  // entries. Read req.ip directly rather than trusting the raw header, which
-  // is what made the value spoofable.
+  // This app is fronted by Cloudflare (Render's edge for *.onrender.com), which
+  // sets CF-Connecting-IP to the true origin client IP on every request and
+  // overwrites any client-supplied value — so it is both stable (unlike the
+  // Cloudflare edge IP that req.ip resolves to, which varies per request) and
+  // not spoofable through the edge. Prefer it; fall back to req.ip (resolved
+  // via `trust proxy: 2`) if the header is ever absent.
+  const cfip = req.headers['cf-connecting-ip'];
+  if (typeof cfip === 'string' && cfip.trim()) {
+    return cfip.trim();
+  }
   return req.ip || 'unknown';
 }
 
