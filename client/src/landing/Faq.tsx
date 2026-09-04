@@ -15,7 +15,7 @@ const FAQS = [
   },
   {
     q: 'Will the result hold up in an interview?',
-    a: 'That is the goal! Because nothing is fabricated and every change is explained, you can speak to everything on the page with confidence.',
+    a: 'That is the whole point. Because nothing is fabricated and every change is explained, you can defend every line in the room instead of freezing when a recruiter digs into something you never did.',
   },
 ];
 
