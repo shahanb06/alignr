@@ -56,17 +56,27 @@ const styles = {
 
 export default function DiffViewer({ original, tailored }: Props) {
   return (
-    <div className="diff-shell thin-scroll max-h-[640px] overflow-auto rounded-lg border border-ink-200">
-      <ReactDiffViewer
-        oldValue={normalizeForDiff(original)}
-        newValue={normalizeForDiff(tailored)}
-        splitView
-        useDarkTheme={false}
-        compareMethod={DiffMethod.WORDS}
-        leftTitle="Original resume"
-        rightTitle="Tailored resume"
-        styles={styles}
-      />
+    <div
+      className="relative overflow-hidden rounded-xl border border-ink-200 p-3 sm:p-4"
+      style={{
+        backgroundColor: '#faf9f6',
+        backgroundImage:
+          'radial-gradient(circle, rgb(168 157 138 / 0.55) 1px, transparent 1px)',
+        backgroundSize: '14px 14px',
+      }}
+    >
+      <div className="diff-shell thin-scroll relative z-10 max-h-[640px] overflow-auto rounded-lg border border-ink-200 bg-white shadow-card">
+        <ReactDiffViewer
+          oldValue={normalizeForDiff(original)}
+          newValue={normalizeForDiff(tailored)}
+          splitView
+          useDarkTheme={false}
+          compareMethod={DiffMethod.WORDS}
+          leftTitle="Original resume"
+          rightTitle="Tailored resume"
+          styles={styles}
+        />
+      </div>
     </div>
   );
 }

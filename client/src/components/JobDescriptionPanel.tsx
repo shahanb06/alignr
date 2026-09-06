@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { RewriteStyle } from '../lib/types';
 
 interface Props {
@@ -68,7 +69,7 @@ export default function JobDescriptionPanel({
               value={targetRole}
               onChange={(e) => onChangeTargetRole(e.target.value.slice(0, 120))}
               disabled={disabled}
-              placeholder="e.g., Software Engineering Intern"
+              placeholder="Target role"
               className="rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 outline-none transition placeholder:text-ink-400 focus:border-ink-400 disabled:opacity-60"
             />
           </div>
@@ -80,19 +81,11 @@ export default function JobDescriptionPanel({
             >
               Tailoring style
             </label>
-            <select
-              id="rewrite-style"
+            <StyleDropdown
               value={rewriteStyle}
-              onChange={(e) => onChangeRewriteStyle(e.target.value as RewriteStyle)}
+              onChange={onChangeRewriteStyle}
               disabled={disabled}
-              className="rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 outline-none transition focus:border-ink-400 disabled:opacity-60"
-            >
-              {STYLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            />
             <div>
               <p className="text-xs text-ink-500">
                 {STYLE_OPTIONS.find((o) => o.value === rewriteStyle)?.description}
@@ -123,5 +116,105 @@ export default function JobDescriptionPanel({
         </div>
       </div>
     </section>
+  );
+}
+
+
+// Custom tailoring-style dropdown. A native <select> can't be styled — its
+// option list is drawn by the OS (the gray macOS menu) — so we render our own
+// button + panel to match the app's surface. Behavior mirrors a select: click
+// to open, click an option to choose, click outside or Escape to close.
+function StyleDropdown({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: RewriteStyle;
+  onChange: (s: RewriteStyle) => void;
+  disabled: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = STYLE_OPTIONS.find((o) => o.value === value) ?? STYLE_OPTIONS[1];
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        id="rewrite-style"
+        disabled={disabled}
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex w-full items-center justify-between rounded-lg border border-ink-200 bg-white px-3 py-2 text-left text-sm text-ink-900 outline-none transition hover:border-ink-300 focus:border-ink-400 disabled:opacity-60"
+      >
+        <span>{current.label}</span>
+        <svg
+          viewBox="0 0 20 20"
+          className={`h-4 w-4 text-ink-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M5 7.5 10 12.5 15 7.5" />
+        </svg>
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-lg border border-ink-200 bg-white p-1 shadow-lg"
+        >
+          {STYLE_OPTIONS.map((opt) => {
+            const selected = opt.value === value;
+            return (
+              <li key={opt.value}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full flex-col gap-0.5 rounded-md px-2.5 py-2 text-left transition ${
+                    selected ? 'bg-emerald-50' : 'hover:bg-ink-50'
+                  }`}
+                >
+                  <span className="flex items-center justify-between text-sm text-ink-900">
+                    {opt.label}
+                    {selected && (
+                      <svg viewBox="0 0 20 20" className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="M4 10.5 8 14.5 16 6" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className="text-xs leading-snug text-ink-500">{opt.description}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

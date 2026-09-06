@@ -394,9 +394,19 @@ export default function ResultsPanel({
             </div>
           }
         >
-          <pre className="thin-scroll max-h-[640px] overflow-auto whitespace-pre-wrap rounded-lg border border-ink-200 bg-ink-50/50 p-4 font-mono text-[12.5px] leading-relaxed text-ink-900">
-            {tailorResult.tailoredResume}
-          </pre>
+          <div
+            className="relative overflow-hidden rounded-xl border border-ink-200 p-4 sm:p-6"
+            style={{
+              backgroundColor: '#f3faf6',
+              backgroundImage:
+                'radial-gradient(circle, rgb(16 185 129 / 0.18) 1px, transparent 1px)',
+              backgroundSize: '14px 14px',
+            }}
+          >
+            <pre className="thin-scroll relative z-10 mx-auto max-h-[640px] max-w-2xl overflow-auto whitespace-pre-wrap rounded-lg border border-ink-200 bg-white p-6 font-mono text-[12.5px] leading-relaxed text-ink-900 shadow-card">
+              {tailorResult.tailoredResume}
+            </pre>
+          </div>
         </Card>
       )}
     </div>
