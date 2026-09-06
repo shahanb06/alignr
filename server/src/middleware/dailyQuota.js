@@ -39,6 +39,16 @@ const { createClient } = require('@supabase/supabase-js');
 const DAILY_TAILOR_LIMIT = Number(process.env.DAILY_TAILOR_LIMIT) || 3;
 const DAILY_ANALYZE_LIMIT = Number(process.env.DAILY_ANALYZE_LIMIT) || 10;
 
+// Optional personal override. When QUOTA_BYPASS_TOKEN is set in the environment,
+// a request carrying that exact value in the `x-quota-bypass` header skips the
+// daily limit entirely (no consume, full remaining reported). Operator testing
+// only — disabled unless the env var is set; the token is never sent to clients.
+function hasBypass(req) {
+  const token = process.env.QUOTA_BYPASS_TOKEN;
+  if (!token) return false;
+  return req.headers['x-quota-bypass'] === token;
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -70,8 +80,11 @@ function limitForScope(scope) {
 // should not take down the product; the hourly limiter is still in effect
 // as the hard backstop.
 async function consumeQuota(req, scope) {
-  const clientKey = clientKeyFrom(req);
   const limit = limitForScope(scope);
+  if (hasBypass(req)) {
+    return { allowed: true, currentCount: 0, limit, resetsAt: null };
+  }
+  const clientKey = clientKeyFrom(req);
 
   const { data, error } = await supabase.rpc('increment_quota', {
     p_client_key: clientKey,
@@ -111,6 +124,12 @@ async function refundQuota(req, scope) {
 
 // Read-only status check, used by GET /api/quota. Does not consume.
 async function getQuotaStatus(req) {
+  if (hasBypass(req)) {
+    return {
+      tailor: { remaining: DAILY_TAILOR_LIMIT, limit: DAILY_TAILOR_LIMIT, resetsAt: null },
+      analyze: { remaining: DAILY_ANALYZE_LIMIT, limit: DAILY_ANALYZE_LIMIT, resetsAt: null },
+    };
+  }
   const clientKey = clientKeyFrom(req);
   const { data, error } = await supabase
     .from('quota_counts')
