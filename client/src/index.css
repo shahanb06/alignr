@@ -29,17 +29,20 @@ body {
 
 /* Plain scrollbars inside our preview boxes. */
 .thin-scroll::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
+}
+.thin-scroll { scrollbar-width: thin; scrollbar-color: #cabfa9 transparent; }
+.thin-scroll::-webkit-scrollbar-track { background: transparent;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: #cabfa9;
   border-radius: 8px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 .thin-scroll::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: #a89d8a;
   background-clip: padding-box;
   border: 2px solid transparent;
 }

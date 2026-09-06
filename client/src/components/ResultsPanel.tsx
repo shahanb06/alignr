@@ -397,9 +397,9 @@ export default function ResultsPanel({
           <div
             className="relative overflow-hidden rounded-xl border border-ink-200 p-4 sm:p-6"
             style={{
-              backgroundColor: '#f3faf6',
+              backgroundColor: '#faf9f6',
               backgroundImage:
-                'radial-gradient(circle, rgb(16 185 129 / 0.18) 1px, transparent 1px)',
+                'radial-gradient(circle, rgb(16 185 129 / 0.34) 1px, transparent 1px)',
               backgroundSize: '14px 14px',
             }}
           >
