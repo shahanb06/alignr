@@ -56,7 +56,7 @@ const styles = {
 
 export default function DiffViewer({ original, tailored }: Props) {
   return (
-    <div className="diff-shell overflow-hidden rounded-lg border border-ink-200">
+    <div className="diff-shell thin-scroll max-h-[640px] overflow-auto rounded-lg border border-ink-200">
       <ReactDiffViewer
         oldValue={normalizeForDiff(original)}
         newValue={normalizeForDiff(tailored)}
