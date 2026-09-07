@@ -95,21 +95,26 @@ interface DiffResult {
   right: DiffLine[]; // tailored side
 }
 
-function wordSpans(line: string, otherLine: string, side: 'left' | 'right'): WordSpan[] {
-  const a = splitWords(line);
-  const b = splitWords(otherLine);
-  const ops = side === 'left' ? diffSeq(a, b) : diffSeq(b, a);
-  // On the left we highlight deletions (words present in `a`/line not matched);
-  // on the right we highlight insertions relative to the other line.
+// Word-diff a changed pair (original line, tailored line) ONCE in a fixed
+// direction (original -> tailored). Reuse the same op list for both sides:
+// the left panel renders 'eq' + 'del' words (original's own text, with its
+// removed words flagged); the right panel renders 'eq' + 'ins' words
+// (tailored's own text, with its added words flagged). Diffing twice with
+// swapped arguments previously mixed up which array's tokens were emitted,
+// causing the tailored side to display the original wording.
+function wordSpans(originalLine: string, tailoredLine: string, side: 'left' | 'right'): WordSpan[] {
+  const oWords = splitWords(originalLine);
+  const tWords = splitWords(tailoredLine);
+  const ops = diffSeq(oWords, tWords);
   const spans: WordSpan[] = [];
   for (const op of ops) {
     if (op.t === 'eq') {
       spans.push({ text: op.av as string, changed: false });
-    } else if (op.t === 'del') {
-      // 'del' here is a word of the *first* arg to diffSeq, which is our own line.
+    } else if (op.t === 'del' && side === 'left') {
       spans.push({ text: op.av as string, changed: true });
+    } else if (op.t === 'ins' && side === 'right') {
+      spans.push({ text: op.bv as string, changed: true });
     }
-    // 'ins' ops belong to the other line; we don't render them on this side.
   }
   return spans;
 }
@@ -168,7 +173,7 @@ function computeDiff(original: string, tailored: string): DiffResult {
       if (pairForDel[d] !== undefined) {
         const t = pairForDel[d];
         left.push({ kind: 'changed', spans: wordSpans(oLines[d], tLines[t], 'left') });
-        right.push({ kind: 'changed', spans: wordSpans(tLines[t], oLines[d], 'right') });
+        right.push({ kind: 'changed', spans: wordSpans(oLines[d], tLines[t], 'right') });
       } else {
         left.push({ kind: 'removed', spans: plainSpans(oLines[d]) });
       }
