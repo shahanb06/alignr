@@ -314,7 +314,8 @@ export default function App() {
               Alignr
             </h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleClear}
@@ -341,7 +342,8 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  Tailor My Resume
+                  <span className="hidden sm:inline">Tailor My Resume</span>
+                  <span className="sm:hidden">Tailor</span>
                   <svg
                     width="12"
                     height="12"
@@ -359,6 +361,7 @@ export default function App() {
                 </>
               )}
             </button>
+            </div>
             {tailorRemaining !== null && tailorRemaining < 3 && (
               <span className="text-[11px] text-ink-500">
                 {tailorRemaining} of 3 left today

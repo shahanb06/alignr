@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 interface Props {
   original: string;
   tailored: string;
@@ -211,14 +213,16 @@ function Paper({
   accent,
   lines,
   side,
+  className = '',
 }: {
   title: string;
   accent: string;
   lines: DiffLine[];
   side: 'left' | 'right';
+  className?: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col">
+    <div className={`flex min-w-0 flex-col ${className}`}>
       <div className={`mb-2 ml-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] ${accent}`}>
         {title}
       </div>
@@ -243,6 +247,8 @@ function Paper({
 
 export default function DiffViewer({ original, tailored }: Props) {
   const { left, right } = computeDiff(original, tailored);
+  const [mobileSide, setMobileSide] = useState<'left' | 'right'>('right');
+
   return (
     // Calm taupe dot canvas — the two resume documents sit on it as sheets.
     <div
@@ -253,9 +259,39 @@ export default function DiffViewer({ original, tailored }: Props) {
         backgroundSize: '15px 15px',
       }}
     >
+      <div className="relative z-10 mb-4 flex gap-1 rounded-lg border border-ink-200 bg-white p-1 md:hidden">
+        {(['left', 'right'] as const).map((sd) => {
+          const selected = mobileSide === sd;
+          return (
+            <button
+              key={sd}
+              type="button"
+              onClick={() => setMobileSide(sd)}
+              className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                selected ? 'bg-ink-900 text-white' : 'text-ink-600 hover:text-ink-900'
+              }`}
+            >
+              {sd === 'left' ? 'Original' : 'Tailored'}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="relative z-10 grid grid-cols-1 gap-5 md:grid-cols-2">
-        <Paper title="Original resume" accent="text-[#9a8f7d]" lines={left} side="left" />
-        <Paper title="Tailored resume" accent="text-[#5b9e7a]" lines={right} side="right" />
+        <Paper
+          title="Original resume"
+          accent="text-[#9a8f7d]"
+          lines={left}
+          side="left"
+          className={mobileSide === 'left' ? '' : 'hidden md:flex'}
+        />
+        <Paper
+          title="Tailored resume"
+          accent="text-[#5b9e7a]"
+          lines={right}
+          side="right"
+          className={mobileSide === 'right' ? '' : 'hidden md:flex'}
+        />
       </div>
     </div>
   );
