@@ -47,7 +47,7 @@ function Card({
   }
   return (
     <section className="rounded-xl border border-ink-200 bg-white shadow-card">
-      <header className="flex items-start justify-between gap-3 border-b border-ink-200 px-5 py-3.5">
+      <header className="flex flex-col gap-3 border-b border-ink-200 px-5 py-3.5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold tracking-[-0.01em] text-ink-900">{title}</h3>
           {subtitle && <p className="mt-0.5 text-xs text-ink-500">{subtitle}</p>}
