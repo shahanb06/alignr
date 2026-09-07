@@ -308,12 +308,16 @@ export default function App() {
       {/* Top bar */}
       <header className="sticky top-0 z-10 border-b border-ink-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-2">
-          <div className="flex items-center gap-3">
+          <a
+            href="#/"
+            aria-label="Alignr home"
+            className="flex items-center gap-3 rounded-md transition hover:opacity-80"
+          >
             <img src="/alignr-logo.png" alt="Alignr logo" className="h-7 md:h-8 w-auto" />
             <h1 className="text-2xl md:text-3xl font-semibold tracking-[-0.01em] leading-none text-ink-900">
               Alignr
             </h1>
-          </div>
+          </a>
           <div className="flex flex-col items-end gap-1">
             <div className="flex items-center gap-2">
             <button
